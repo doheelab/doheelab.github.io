@@ -269,3 +269,5 @@ Stopping. Best iteration:
 [218]	validation_0-auc:0.979635
 ```
 Great! The score has increased from 0.86896 -> 0.979635.
+
+[cdeotte]: https://www.kaggle.com/cdeotte/xgb-fraud-with-magic-0-9600
