@@ -188,10 +188,10 @@ Stopping. Best iteration:
 ## Advanced Feature Engineering using the Magic Features
 Let's take a look at how to use the magic feature to improve the performance of the original XGBoost model. <br/>
 This requires two other operations. <br/> 
->(COMBINE FEATURES) 
+>COMBINE FEATURES
 
 Concatenate two string type features to create a new feature. Ex) Hyundai Card + Suwon = Hyundai Card_Suwon <br/>
->(GROUP AGGREGATION MEAN AND STD) 
+>GROUP AGGREGATION MEAN AND STD
 
 Based on one feature, group the items belonging to the same class to find mean and std and add each new feature.
 
