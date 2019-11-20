@@ -7,7 +7,7 @@ categories: machine-learning
 ## Introduction
 Preprocessing cartegorical features is no easy task. The most common techniques would probably be one hot encoding. However, one-hot-encoding is not an efficient preprocessing method when the number of features is large. In this article, We will learn how to handle many categorical features effectively even when the number of features is large. This technique was used by the winner of Kaggle's "IEEE-CIS Fraud Detection" competition and can be found at [here][cdeotte].
 
-## How the Magic Works [source][cdeotte]
+## How the Magic Works [(source)][cdeotte]
 The magic is two things. First we need a UID variable to identify clients (credit cards). Second, we need to create aggregated group features. Then we remove UID. Suppose we had 10 transactions `A, B, C, D, E, F, G, H, I, J` as below.  
   
 ![image](http://playagricola.com/Kaggle/table.jpg)  
