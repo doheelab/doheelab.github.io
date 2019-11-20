@@ -80,11 +80,14 @@ X_test = X_test.merge(test_id, how='left', left_index=True, right_index=True)
 y_train = X_train['isFraud'].copy()
 del train_id, test_id, X_train['isFraud']; 
 x = gc.collect()
-
-# PRINT STATUS
-print('Train shape',X_train.shape,'test shape',X_test.shape)
-# Train shape (10000, 432) test shape (10000, 432)
 ```
+
+```python
+# PRINT STATUS
+>>>print('Train shape',X_train.shape,'test shape',X_test.shape)
+Train shape (10000, 432) test shape (10000, 432)
+```
+
 ## 1) Pandas.factorize
 pandas.factorize(values, sort=False, order=None, na_sentinel=-1, size_hint=None) <br/>
 Encode the object as an enumerated type or categorical variable.
