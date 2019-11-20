@@ -5,9 +5,9 @@ categories: machine-learning
 ---
 
 ## Introduction
-Preprocessing cartegorical features is no easy task. The most common techniques would probably be one hot encoding. However, one-hot-encoding is not an efficient preprocessing method when the number of features is large. In this article, We will learn how to handle many categorical features effectively even when the number of features is large. This technique was used by the winner of Kaggle's "IEEE-CIS Fraud Detection" competition and can be found at https://www.kaggle.com/cdeotte/xgb-fraud-with-magic-0-9600.
+Preprocessing cartegorical features is no easy task. The most common techniques would probably be one hot encoding. However, one-hot-encoding is not an efficient preprocessing method when the number of features is large. In this article, We will learn how to handle many categorical features effectively even when the number of features is large. This technique was used by the winner of Kaggle's "IEEE-CIS Fraud Detection" competition and can be found at [here][cdeotte].
 
-## How the Magic Works
+## How the Magic Works [source][cdeotte]
 The magic is two things. First we need a UID variable to identify clients (credit cards). Second, we need to create aggregated group features. Then we remove UID. Suppose we had 10 transactions `A, B, C, D, E, F, G, H, I, J` as below.  
   
 ![image](http://playagricola.com/Kaggle/table.jpg)  
@@ -86,7 +86,7 @@ x = gc.collect()
 >>>print('Train shape',X_train.shape,'test shape',X_test.shape)
 Train shape (10000, 432) test shape (10000, 432)
 ```
-## Feature Engineering
+## Basic Feature Engineering
 
 We use pandas's factorize function to convert categorical variables into numeric variables.
 
@@ -169,6 +169,102 @@ plt.tight_layout()
 plt.show()
 del clf, h; x=gc.collect()
 ```
+The result is as follows:
+```
+XGBoost version: 0.90
+[0]	validation_0-auc:0.677229
+Will train until validation_0-auc hasn't improved in 100 rounds.
+[50]	validation_0-auc:0.831485
+[100]	validation_0-auc:0.841948
+[150]	validation_0-auc:0.857862
+[200]	validation_0-auc:0.860735
+[250]	validation_0-auc:0.868282
+[300]	validation_0-auc:0.867505
+Stopping. Best iteration:
+[245]	validation_0-auc:0.86896
+```
+
+## Advanced Feature Engineering using the Magic Features
+Let's take a look at how to use the magic feature to improve the performance of the original XGBoost model. <br/>
+This requires two new operations. <br/> 
+(COMBINE FEATURES) Concatenate two string type features to create a new feature. Ex) Hyundai Card + Suwon = Hyundai Card_Suwon <br/>
+(GROUP AGGREGATION MEAN AND STD) Based on one feature, group the items belonging to the same class to find mean and std and add each new feature.
+
+```python
+# COMBINE FEATURES
+def encode_CB(col1,col2,df1=X_train,df2=X_test):
+    nm = col1+'_'+col2
+    df1[nm] = df1[col1].astype(str)+'_'+df1[col2].astype(str)
+    df2[nm] = df2[col1].astype(str)+'_'+df2[col2].astype(str) 
+    encode_LE(nm,verbose=False)
+    print(nm,', ',end='')
+
+# GROUP AGGREGATION MEAN AND STD
+# https://www.kaggle.com/kyakovlev/ieee-fe-with-some-eda
+def encode_AG(main_columns, uids, aggregations=['mean'], train_df=X_train, test_df=X_test, 
+              fillna=True, usena=False):
+    # AGGREGATION OF MAIN WITH UID FOR GIVEN STATISTICS
+    for main_column in main_columns:  
+        for col in uids:
+            for agg_type in aggregations:
+                new_col_name = main_column+'_'+col+'_'+agg_type
+                temp_df = pd.concat([train_df[[col, main_column]], test_df[[col,main_column]]])
+                if usena: temp_df.loc[temp_df[main_column]==-1,main_column] = np.nan
+                temp_df = temp_df.groupby([col])[main_column].agg([agg_type]).reset_index().rename(
+                                                        columns={agg_type: new_col_name})
+
+                temp_df.index = list(temp_df[col])
+                temp_df = temp_df[new_col_name].to_dict()   
+
+                train_df[new_col_name] = train_df[col].map(temp_df).astype('float32')
+                test_df[new_col_name]  = test_df[col].map(temp_df).astype('float32')
+                
+                if fillna:
+                    train_df[new_col_name].fillna(-1,inplace=True)
+                    test_df[new_col_name].fillna(-1,inplace=True)
+                
+                print("'"+new_col_name+"'",', ',end='')
+                
+# LABEL ENCODE
+def encode_LE(col,train=X_train,test=X_test,verbose=True):
+    df_comb = pd.concat([train[col],test[col]],axis=0)
+    df_comb,_ = df_comb.factorize(sort=True)
+    nm = col
+    if df_comb.max()>32000: 
+        train[nm] = df_comb[:len(train)].astype('int32')
+        test[nm] = df_comb[len(train):].astype('int32')
+    else:
+        train[nm] = df_comb[:len(train)].astype('int16')
+        test[nm] = df_comb[len(train):].astype('int16')
+    del df_comb; x=gc.collect()
+    if verbose: print(nm,', ',end='')
+```
+
+We use the function 'encode_CB' to combine columns card1+addr1, card1+addr1+P_emaildomain
+```python
+encode_CB('card1','addr1')
+encode_CB('card1_addr1','P_emaildomain')
+```
+Use the function 'encode_LE' to get the aggregated mean and std for the feature created above and add it as new features.
+```python
+encode_AG(['TransactionAmt','D9','D11'],['card1','card1_addr1','card1_addr1_P_emaildomain'],['mean','std'],usena=True)
+```
+Now let's run XGBoost with the input data containing the newly added features.
+```
+XGBoost version: 0.90
+[0]	validation_0-auc:0.673694
+Will train until validation_0-auc hasn't improved in 100 rounds.
+[50]	validation_0-auc:0.883513
+[100]	validation_0-auc:0.930568
+[150]	validation_0-auc:0.965679
+[200]	validation_0-auc:0.978922
+[250]	validation_0-auc:0.979067
+[300]	validation_0-auc:0.977088
+Stopping. Best iteration:
+[218]	validation_0-auc:0.979635
+```
+It works! The score has increase from 0.86896 -> 0.979635.
+
 
 
 You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
@@ -185,6 +281,7 @@ print_hi('Tom')
 
 Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
 
+[cdeotte]: https://www.kaggle.com/cdeotte/xgb-fraud-with-magic-0-9600
 [jekyll-docs]: https://jekyllrb.com/docs/home
 [jekyll-gh]:   https://github.com/jekyll/jekyll
 [jekyll-talk]: https://talk.jekyllrb.com/
