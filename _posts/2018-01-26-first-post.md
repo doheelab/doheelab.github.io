@@ -25,7 +25,7 @@ Now suppose that we have a UID which defines groups and we make an aggregated fe
 
 In the original dataframe, there are 392 features including both numeric features and categrical features. 
 
-<div style="https://user-images.githubusercontent.com/57972646/69213947-f28d9e00-0ba8-11ea-8347-61bfd27f4f3c.png" /></div>
+![Selection_004](https://user-images.githubusercontent.com/57972646/69213947-f28d9e00-0ba8-11ea-8347-61bfd27f4f3c.png)
 
 ## Feature Information
 
