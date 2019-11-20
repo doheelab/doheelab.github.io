@@ -1,7 +1,7 @@
 ---
 title: "Categorical Feature Processing Using Aggregated Mean and Std"
 date: 2019-11-19 09:00:00 -0400
-categories: Machine Learning
+categories: machine-learning, preprocessing
 ---
 
 You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
