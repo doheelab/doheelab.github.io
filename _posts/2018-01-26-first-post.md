@@ -85,12 +85,11 @@ x = gc.collect()
 print('Train shape',X_train.shape,'test shape',X_test.shape)
 # Train shape (10000, 432) test shape (10000, 432)
 ```
-# Pandas.factorize
-
+## 1) Pandas.factorize
 pandas.factorize(values, sort=False, order=None, na_sentinel=-1, size_hint=None) <br/>
 Encode the object as an enumerated type or categorical variable.
 
-```
+```python
 >>> labels, uniques = pd.factorize(['b', 'b', 'a', 'c', 'b'])
 >>> labels
 array([0, 0, 1, 2, 0])
