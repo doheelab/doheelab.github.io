@@ -1,5 +1,5 @@
 ---
-title: "Categorical Feature Processing Using Aggregated Mean and Std"
+title: "Categorical Feature Engineering Using Aggregated Mean and Std"
 date: 2019-11-19 09:00:00 -0400
 categories: machine-learning
 ---
@@ -87,6 +87,7 @@ x = gc.collect()
 >>>print('Train shape',X_train.shape,'test shape',X_test.shape)
 Train shape (10000, 432) test shape (10000, 432)
 ```
+## Feature Engineering
 
 We use pandas's factorize function to convert categorical variables into numeric variables.
 
