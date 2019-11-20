@@ -11,9 +11,7 @@ In this article, We will learn how to handle many categorical features effective
 ## How the Magic Works [(source)][cdeotte]
 The magic is two things. First we need a UID variable to identify clients (credit cards). Second, we need to create aggregated group features. Then we remove UID. Suppose we had 10 transactions `A, B, C, D, E, F, G, H, I, J` as below.  
   
-<p align="center">
-![image](http://playagricola.com/Kaggle/table.jpg)  
-</p>
+<center><img src="http://playagricola.com/Kaggle/table.jpg" width="300" height="300"></center>
 
 If we only use FeatureX, we can classify 70% of the transactions correctly. Below, yellow circles are `isFraud=1` and blue circles are `isFraud=0` transactions. After the tree model below splits data into left child and right child, we predict `isFraud=1` for left child and `isFraud=0` for right child. Thus 7 out of 10 predictions are correct.
   
