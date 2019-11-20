@@ -127,14 +127,14 @@ for i,f in enumerate(X_train.columns):
         X_test[f].fillna(-1,inplace=True)
 ```
 
-### Since this is time series data, we use the first 75% as the train set and the latter 25% as the validation set.
+Since this is time series data, we use the first 75% as the train set and the latter 25% as the validation set.
 ```python
 # CHRIS - TRAIN 75% PREDICT 25%
 idxT = X_train.index[:3*len(X_train)//4]
 idxV = X_train.index[3*len(X_train)//4:]
 ```
 
-### Run XGBoost Model 
+Run XGBoost Model 
 ```python
 import xgboost as xgb
 print("XGBoost version:", xgb.__version__)
