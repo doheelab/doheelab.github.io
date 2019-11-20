@@ -267,4 +267,4 @@ Will train until validation_0-auc hasn't improved in 100 rounds.
 Stopping. Best iteration:
 [218]	validation_0-auc:0.979635
 ```
-It works! The score has increase from 0.86896 -> 0.979635.
+It works! The score has increased from 0.86896 -> 0.979635.
