@@ -83,9 +83,20 @@ x = gc.collect()
 
 # PRINT STATUS
 print('Train shape',X_train.shape,'test shape',X_test.shape)
+# Train shape (10000, 432) test shape (10000, 432)
 ```
-Train shape (10000, 432) test shape (10000, 432)
+# Pandas.factorize
 
+pandas.factorize(values, sort=False, order=None, na_sentinel=-1, size_hint=None) <br/>
+Encode the object as an enumerated type or categorical variable.
+
+```
+>>> labels, uniques = pd.factorize(['b', 'b', 'a', 'c', 'b'])
+>>> labels
+array([0, 0, 1, 2, 0])
+>>> uniques
+array(['b', 'a', 'c'], dtype=object)
+```
 
 You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
 
