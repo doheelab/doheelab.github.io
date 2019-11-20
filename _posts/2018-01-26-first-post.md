@@ -4,6 +4,10 @@ date: 2019-11-19 09:00:00 -0400
 categories: machine-learning
 ---
 
+## Introduction
+Preprocessing cartegorical features is often not easy task to do. The most common techniques would probably be one hot encoding. However, it is not efficient when the dimension of the feature space is high. In this article, we will learn a technique used by the winner of Kaggle's "IEEE-CIS Fraud Detection" competition.
+
+
 You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
 
 To add new posts, simply add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.ext` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
