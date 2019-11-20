@@ -26,7 +26,7 @@ import numpy as np, pandas as pd
 X_train = pd.read_csv('../input/ieee-fraud-detection/train_transaction.csv',index_col='TransactionID', nrows=20)
 X_train
 ```
-
+![Selection_002](https://user-images.githubusercontent.com/57972646/69213746-5c597800-0ba8-11ea-974f-54e53957a872.png)
 
 
 In the original dataframe, there are 392 features including both numeric features and categrical features. 
