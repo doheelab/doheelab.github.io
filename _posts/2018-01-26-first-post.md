@@ -20,7 +20,7 @@ Now suppose that we have a UID which defines groups and we make an aggregated fe
   
 ![image](http://playagricola.com/Kaggle/cred.jpg)
 
-## Read Data
+## Data Explanation
 
 ![Selection_004](https://user-images.githubusercontent.com/57972646/69213947-f28d9e00-0ba8-11ea-8347-61bfd27f4f3c.png)
 
@@ -59,7 +59,7 @@ Categorical Features:
 * DeviceInfo <br/>
 * id12 - id38 
 
-## Python Code
+### Read data
 
 ```python
 import numpy as np, pandas as pd, os, gc
@@ -88,7 +88,9 @@ x = gc.collect()
 Train shape (10000, 432) test shape (10000, 432)
 ```
 
-## 1) Pandas.factorize
+We use pandas's factorize function to convert categorical variables into numeric variables.
+
+### Pandas.factorize
 pandas.factorize(values, sort=False, order=None, na_sentinel=-1, size_hint=None) <br/>
 Encode the object as an enumerated type or categorical variable.
 
@@ -100,12 +102,14 @@ array([0, 0, 1, 2, 0])
 array(['b', 'a', 'c'], dtype=object)
 ```
 
+The next things to do are:
+
 ## LABEL ENCODE AND MEMORY REDUCE
-1. (factorize) Convert categorical variables using pandas' factorize function.
-2. (memory reduce) If the max value is 32000 or higher, the data type is converted to 'int32' type, otherwise it is converted to 'int32'.
+1. factorize: Convert categorical variables using pandas' factorize function.
+2. memory reduce: If the max value is 32000 or higher, the data type is converted to 'int32' type, otherwise it is converted to 'int32'.
 ## SHIFT ALL NUMERICS POSITIVE. SET NAN to -1
-1. (positive) Change all numeric values to zero or above. 
-2. (NAN to -1) Convert all NAN values to -1.
+3. positive: Change all numeric values to zero or above. 
+4. NAN to -1: Convert all NAN values to -1.
 
 ```python
 # LABEL ENCODE AND MEMORY REDUCE
@@ -134,7 +138,9 @@ idxT = X_train.index[:3*len(X_train)//4]
 idxV = X_train.index[3*len(X_train)//4:]
 ```
 
-Run XGBoost Model 
+We will now test the performance of the original version of the XGBoost model.
+
+
 ```python
 import xgboost as xgb
 print("XGBoost version:", xgb.__version__)
