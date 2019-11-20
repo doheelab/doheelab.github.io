@@ -13,6 +13,8 @@ The magic is two things. First we need a UID variable to identify clients (credi
   
 ![image](http://playagricola.com/Kaggle/table.jpg)
 
+<div style="text-align:center"><img src="http://playagricola.com/Kaggle/table.jpg" /></div>
+
 If we only use FeatureX, we can classify 70% of the transactions correctly. Below, yellow circles are `isFraud=1` and blue circles are `isFraud=0` transactions. After the tree model below splits data into left child and right child, we predict `isFraud=1` for left child and `isFraud=0` for right child. Thus 7 out of 10 predictions are correct.
   
 ![image](http://playagricola.com/Kaggle/tran.jpg)  
