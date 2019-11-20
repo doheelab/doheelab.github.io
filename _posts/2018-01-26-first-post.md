@@ -104,12 +104,10 @@ array(['b', 'a', 'c'], dtype=object)
 
 The next things to do are:
 
-(LABEL ENCODE AND MEMORY REDUCE)
-1. factorize: Convert categorical variables using pandas' factorize function.
-2. memory reduce: If the max value is 32000 or higher, the data type is converted to 'int32' type, otherwise it is converted to 'int32'.
-(SHIFT ALL NUMERICS POSITIVE. SET NAN to -1)
-3. positive: Change all numeric values to zero or above. 
-4. NAN to -1: Convert all NAN values to -1.
+1. (factorize) Convert categorical variables using pandas' factorize function.
+2. (memory reduce) If the max value is 32000 or higher, the data type is converted to 'int32' type, otherwise it is converted to 'int32'.
+3. (positive) Change all numeric values to zero or above. 
+4. (NAN to -1) Convert all NAN values to -1.
 
 ```python
 # LABEL ENCODE AND MEMORY REDUCE
