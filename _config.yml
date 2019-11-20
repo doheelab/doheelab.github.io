@@ -290,7 +290,7 @@ defaults:
       path: ""
       type: posts
     values:
-      layout: defaults #single
+      layout: home #single
       author_profile: false
       read_time: true
       comments: # true
