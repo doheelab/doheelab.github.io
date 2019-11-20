@@ -100,6 +100,73 @@ array([0, 0, 1, 2, 0])
 array(['b', 'a', 'c'], dtype=object)
 ```
 
+## LABEL ENCODE AND MEMORY REDUCE
+1. (factorize) Convert categorical variables using pandas' factorize function.
+2. (memory reduce) If the max value is 32000 or higher, the data type is converted to 'int32' type, otherwise it is converted to 'int32'.
+## SHIFT ALL NUMERICS POSITIVE. SET NAN to -1
+1. (positive) Change all numeric values to zero or above. 
+2. (NAN to -1) Convert all NAN values to -1.
+
+```python
+# LABEL ENCODE AND MEMORY REDUCE
+for i,f in enumerate(X_train.columns):
+    # FACTORIZE CATEGORICAL VARIABLES
+    if (np.str(X_train[f].dtype)=='category')|(X_train[f].dtype=='object'): 
+        df_comb = pd.concat([X_train[f],X_test[f]],axis=0)
+        df_comb,_ = df_comb.factorize(sort=True)        # (factorize)
+        if df_comb.max()>32000: print(f,'needs int32')  # (memory reduce) 
+        X_train[f] = df_comb[:len(X_train)].astype('int16')
+        X_test[f] = df_comb[len(X_train):].astype('int16')
+        
+    # SHIFT ALL NUMERICS POSITIVE. SET NAN to -1
+    elif f not in ['TransactionAmt','TransactionDT']:
+        mn = np.min((X_train[f].min(),X_test[f].min()))
+        X_train[f] -= np.float32(mn)                   # (positive)
+        X_test[f] -= np.float32(mn)                    # (NAN to -1)
+        X_train[f].fillna(-1,inplace=True)
+        X_test[f].fillna(-1,inplace=True)
+```
+
+### Since this is time series data, we use the first 75% as the train set and the latter 25% as the validation set.
+```python
+# CHRIS - TRAIN 75% PREDICT 25%
+idxT = X_train.index[:3*len(X_train)//4]
+idxV = X_train.index[3*len(X_train)//4:]
+```
+
+### Run XGBoost Model 
+```python
+import xgboost as xgb
+print("XGBoost version:", xgb.__version__)
+
+clf = xgb.XGBClassifier( 
+    n_estimators=2000,
+    max_depth=12, 
+    learning_rate=0.02, 
+    subsample=0.8,
+    colsample_bytree=0.4, 
+    missing=-1, 
+    eval_metric='auc',
+    # USE CPU
+    nthread=4,
+    tree_method='hist' 
+    # USE GPU
+    #tree_method='gpu_hist' 
+)
+h = clf.fit(X_train.loc[idxT], y_train[idxT], 
+    eval_set=[(X_train.loc[idxV],y_train[idxV])],
+    verbose=50, early_stopping_rounds=100)
+
+feature_imp = pd.DataFrame(sorted(zip(clf.feature_importances_,cols)), columns=['Value','Feature'])
+plt.figure(figsize=(20, 10))
+sns.barplot(x="Value", y="Feature", data=feature_imp.sort_values(by="Value", ascending=False).iloc[:50])
+plt.title('XGB95 Most Important Features')
+plt.tight_layout()
+plt.show()
+del clf, h; x=gc.collect()
+```
+
+
 You’ll find this post in your `_posts` directory. Go ahead and edit it and re-build the site to see your changes. You can rebuild the site in many different ways, but the most common way is to run `jekyll serve`, which launches a web server and auto-regenerates your site when a file is updated.
 
 To add new posts, simply add a file in the `_posts` directory that follows the convention `YYYY-MM-DD-name-of-post.ext` and includes the necessary front matter. Take a look at the source for this post to get an idea about how it works.
