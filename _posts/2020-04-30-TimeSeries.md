@@ -8,7 +8,7 @@ categories: machine-learning
 
 이 글에서 다룰 내용은 시계열 데이터(상품 구매량 데이터)를 활용하여 현재로부터 1, 2, 3주 미래의 구매량을 예측하는 것입니다.
 
-## 데이터 준비
+## 데이터 다운로드
 https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly
 
 800개가 넘는 상품에 대하여 52주 동안의 주별 구매량 데이터를 제공합니다.
