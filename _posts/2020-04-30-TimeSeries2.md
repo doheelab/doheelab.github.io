@@ -153,7 +153,7 @@ X_train = np.expand_dims(X_train, axis=2)
 
 학습을 시작합니다.
 
-```
+```python
 model = deep_lstm()
 X_train = np.expand_dims(X_train, axis=2)
 
