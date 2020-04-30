@@ -95,7 +95,7 @@ X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
 ```
-RobustScaler 전처리 전, 후 비교
+> RobustScaler 전처리 전, 후 비교
 
 ![image](https://user-images.githubusercontent.com/57972646/80659105-ed6f3c00-8ac2-11ea-9644-92fffbf22852.png)
 
