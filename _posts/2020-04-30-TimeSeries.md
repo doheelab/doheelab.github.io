@@ -1,5 +1,5 @@
 ---
-title: "뉴럴 네크워크(Neural Network)를 이용하여 시계열 데이터 예측하기"
+title: "뉴럴 네트워크로 시계열 데이터 예측하기(Neural Network)"
 date: 2020-04-30 09:00:00 -0400
 categories: machine-learning
 ---
