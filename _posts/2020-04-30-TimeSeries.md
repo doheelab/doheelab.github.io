@@ -4,12 +4,13 @@ date: 2020-04-30 09:00:00 -0400
 categories: machine-learning
 ---
 
-블로그 글 "[How To Use Neural Networks to Forecast Multiple Steps of a Time Series][Lin]"을 참고하여 작성하였습니다.
+블로그 글 "[How To Use Neural Networks to Forecast Multiple Steps of a Time Series](https://www.mariofilho.com/how-to-use-neural-networks-to-forecast-multiple-steps-of-time-series/)"을 참고하여 작성하였습니다.
 
 이 글에서 다룰 내용은 시계열 데이터(상품 구매량 데이터)를 활용하여 현재로부터 1, 2, 3주 미래의 구매량을 예측하는 것입니다.
 
 ## 데이터 준비
 https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly
+
 800개가 넘는 상품에 대하여 52주 동안의 주별 구매량 데이터를 제공합니다.
 
 ## 데이터 불러오기
