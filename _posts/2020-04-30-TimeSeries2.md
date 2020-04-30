@@ -53,7 +53,9 @@ data['Product_Code_NUM'] = data['Product_Code'].str.extract("(\d+)").astype(int)
 print(data.shape)
 data.head()
 ```
+```
 (811, 54)
+```
 
 ![image](https://user-images.githubusercontent.com/57972646/80658133-3d003880-8ac0-11ea-9f7a-12ac0856cf88.png)
 
