@@ -175,7 +175,8 @@ np.sqrt(((np.log1p(p) - np.log1p(Y_test))**2)).mean(axis=0)
 array([2.10016761, 2.10686022, 2.16465018])
 
 >시각화
-Seaborn과 Pyplot을 이용하여 시각화해봤습니다.
+
+Seaborn과 Pyplot을 이용하여 시각화 하였습니다.
 
 ```python
 from matplotlib import pyplot as plt
