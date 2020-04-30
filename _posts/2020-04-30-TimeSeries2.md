@@ -13,6 +13,8 @@ categories: machine-learning
 
 [3] [Sales_Transactions_Dataset_Weekly Data Set](https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly)
 
+
+
 ## 소개
 
 이 글에서 다룰 내용은 Keras를 활용하여 Stacked LSTM 구현을 구현한 후 time series prediction task에 적용해보는 것입니다.
@@ -27,6 +29,7 @@ Stacked LSTM은 LSTM이 더 복잡한 task를 해결할 수 있도록, 모델의
 [그림1: Stacked Long Short-Term Memory Archiecture 1]
 
 ![](http://www.wildml.com/wp-content/uploads/2015/09/Screen-Shot-2015-09-16-at-2.21.51-PM-272x300.png)
+
 [그림2: Stacked Long Short-Term Memory Archiecture 2]
 
 ## 데이터 다운로드
