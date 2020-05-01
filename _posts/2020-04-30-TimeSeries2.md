@@ -5,17 +5,6 @@ categories: machine-learning
 ---
 
 
-
-(참고자료)
-
-[1] "[Stacked Long Short-Term Memory Networks](https://machinelearningmastery.com/stacked-long-short-term-memory-networks/)"
-
-[2] [# 케라스와 함께하는 쉬운 딥러닝 (20) - 순환형 신경망(RNN) 모델 만들기 3](https://buomsoo-kim.github.io/keras/2019/07/29/Easy-deep-learning-with-Keras-20.md/)
-
-[3] [Sales_Transactions_Dataset_Weekly Data Set](https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly)
-
-
-
 ## 소개
 
 이 글에서 다룰 내용은 Keras를 활용하여 Stacked LSTM 구현을 구현한 후 time series prediction task에 적용해보는 것입니다.
@@ -253,3 +242,15 @@ plt.show()
 ![image](https://user-images.githubusercontent.com/57972646/80673859-510d5f80-8aeb-11ea-839a-5b247163c15d.png)
 
 ![image](https://user-images.githubusercontent.com/57972646/80673887-5bc7f480-8aeb-11ea-82d9-9130b7fc97f5.png)
+
+
+
+(참고자료)
+
+[1] "[Stacked Long Short-Term Memory Networks](https://machinelearningmastery.com/stacked-long-short-term-memory-networks/)"
+
+[2] [# 케라스와 함께하는 쉬운 딥러닝 (20) - 순환형 신경망(RNN) 모델 만들기 3](https://buomsoo-kim.github.io/keras/2019/07/29/Easy-deep-learning-with-Keras-20.md/)
+
+[3] [Sales_Transactions_Dataset_Weekly Data Set](https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly)
+
+
