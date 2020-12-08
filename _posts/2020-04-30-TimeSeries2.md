@@ -18,7 +18,7 @@ Stacked LSTM은 LSTM이 더 복잡한 task를 해결할 수 있도록, 모델의
 
 [그림1: Stacked Long Short-Term Memory Archiecture 1]
 
-![Stacked Long Short-Term Memory Archiecture2](http://www.wildml.com/wp-content/uploads/2015/09/Screen-Shot-2015-09-16-at-2.21.51-PM-272x300.png)
+![Screen-Shot-2015-09-16-at-2 21 51-PM-272x300](https://user-images.githubusercontent.com/57972646/101423085-945e6500-393b-11eb-90de-f84a9f37ee06.png)
 
 [그림2: Stacked Long Short-Term Memory Archiecture 2]
 
