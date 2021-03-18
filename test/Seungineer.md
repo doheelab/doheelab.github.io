@@ -19,7 +19,7 @@
 
 비전공자 개발자인 유튜버 승지니어(Sengineer)님이 이러한 어려움을 어떻게 극복하셨는지 본인의 경험담을 올린 영상이 있어서, 이 내용을 참고하여 비전공자로서의 어려움을 극복하는 방법에 대해 소개해드리려고 합니다.
 
-<iframe width="956" height="538" src="https://www.youtube.com/embed/ozv4q2ov3Mk" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
 ---
 <br/>
