@@ -1,4 +1,10 @@
-비전공자로 개발자 커리어를 시작하기
+---
+title: '비전공자로 개발자 커리어를 시작하기'
+date: 2021-03-18 09:00:00 -0400
+author: Dohee Jung
+tags: github
+comments: true
+---
 
 최근 개발자에 대한 수요가 많아지고, 대우가 좋아지면서 대학교에서 CS를 전공하지 않은 비전공자 개발자들이 많아지고 있습니다.
 
@@ -17,15 +23,7 @@
 
 등이 있습니다.
 
-비전공자 개발자인 유튜버 승지니어(Sengineer)님이 이러한 어려움을 어떻게 극복하셨는지 본인의 경험담을 올린 영상이 있어서, 이 내용을 참고하여 비전공자로서의 어려움을 극복하는 방법에 대해 소개해드리려고 합니다.
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-
-{% include youtubePlayer.html id=5bIzMeC6Djk %}
-
-{% include youtubePlayer.html id="5bIzMeC6Djk" provider="youtube" %}
-
-<iframe width="956" height="538" src="https://www.youtube.com/embed/5bIzMeC6Djk" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+비전공자 개발자인 유튜버 승지니어(Sengineer)님이 이러한 어려움을 어떻게 극복하셨는지 본인의 경험담을 올린 [영상](https://www.youtube.com/watch?v=5bIzMeC6Djk)이 있어서, 이 내용을 참고하여 비전공자로서의 어려움을 극복하는 방법에 대해 소개해드리려고 합니다.
 
 ---
 <br/>
@@ -54,3 +52,9 @@
 
 이는 타인의 배려이지만, 본인에게는 독이든 성배가 될 수 있기 때문에, 이러한 시선을 당연시하고 느슨하게 생각하는 것보다 가능하다면 최대한 빨리 비전공자 타이틀을 떼려고 노력하는 것이 개발자로서 커리어를 이어나가는 데에 도움이 됩니다.
 
+---
+<br/>
+
+## 참고자료
+
+[1] [비전공자로 개발자 커리어를 시작하는 사람들에게](https://www.youtube.com/watch?v=5bIzMeC6Djk)
