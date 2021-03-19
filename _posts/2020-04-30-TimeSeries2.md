@@ -28,15 +28,14 @@ Stacked LSTM은 LSTM이 더 복잡한 task를 해결할 수 있도록, 모델의
   <i>Stacked Long Short-Term Memory Archiecture 2</i>
 </div>
 
----
-
-<br/>
-
 ## 데이터 다운로드
 
 [Sales_Transactions_Dataset_Weekly Data Set](https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly)
 
 총 811개의 상품에 대하여 52주 동안의 주별 구매량 데이터를 활용 하겠습니다.
+
+---
+<br/>
 
 ## 데이터 불러오기
 
@@ -68,6 +67,8 @@ print("Max Product_Code: {} - Unique Product_Code: {}".format(data['Product_Code
 Max Product_Code: 819 - Unique Product_Code: 811
 ```
 
+---
+<br/>
 
 ## 데이터 전처리
 
@@ -141,6 +142,9 @@ print("변경 후 :", X_train, X_train.shape)
   <i>numpy의 expand_dims 적용 전, 후</i>
 </div>
 
+---
+<br/>
+
 ## 모델 정의하기
 
 hidden layer가 2개인 `stacked LSTM` 네트워크를 정의하였습니다.
@@ -162,6 +166,9 @@ def deep_lstm():
 
     return model
 ```
+
+---
+<br/>
 
 # 학습하기
 
@@ -222,6 +229,9 @@ Epoch 20/20
 17842/17842 [==============================] - 2s 90us/step - loss: 15.0054
 ```
 
+---
+<br/>
+
 ## 결과 확인하기
 
 1주, 2주, 3주 후 예측값과 실제값 사이의 에러를 계산하였습니다.
@@ -236,7 +246,10 @@ np.sqrt(((prediction - Y_test)**2)).mean(axis=0)
 array([2.13613641, 2.16403327, 2.20673458])
 ```
 
-다음은 시각화입니다.
+---
+<br/>
+
+## 예측 결과 시각화
 
 ```python
 from matplotlib import pyplot as plt
@@ -258,6 +271,7 @@ plt.show()
 <div align="center">
   <i>첫번째 상품의 판매량의 예측 결과와 실제값</i>
 </div>
+<br/>
 
 ```python
 plt.figure(figsize=(10,5))
@@ -275,6 +289,9 @@ plt.show()
 <div align="center">
   <i>두번째 상품의 판매량의 예측 결과와 실제값</i>
 </div>
+
+---
+<br/>
 
 ## 참고자료
 
