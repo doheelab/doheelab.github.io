@@ -6,13 +6,13 @@ categories: machine-learning
 
 ## 소개
 
-이 글에서는 Keras를 활용하여 Stacked LSTM 구현을 구현하고 time series prediction task에 적용하겠습니다.
+이 글에서는 `Keras`를 활용하여 `Stacked LSTM` 구현을 구현하고 `time series prediction`에 적용하겠습니다.
 
 ## Stacked LSTM을 사용하는 이유
 
-보통 neural network 에서 모델의 성능을 향상시키기 위해 hidden lyaer의 노드 갯수를 과도하게 증가시키는 것보다, hidden layer의 층을 쌓는 것이 더욱 효울적인 것으로 알려져 있습니다.
+보통 `neural network` 에서 모델의 성능을 향상시키기 위해 `hidden lyaer`의 노드 갯수를 과도하게 증가시키는 것보다, 층을 깊게 쌓는 것이 더욱 효울적인 것으로 알려져 있습니다.
 
-Stacked LSTM은 LSTM이 더 복잡한 task를 해결할 수 있도록, 모델의 복잡도를 높이는 방법 중 하나로 볼 수 있습니다.
+`Stacked LSTM`은 `LSTM`이 더 복잡한 `task`를 해결할 수 있도록, 모델의 복잡도를 높이는 방법 중 하나로 볼 수 있습니다.
 
 <div style="text-align:center"><img src="https://3qeqpr26caki16dnhd19sv6by6v-wpengine.netdna-ssl.com/wp-content/uploads/2017/07/architecture_stacked_lstm.png" /></div>
 
@@ -74,7 +74,7 @@ Max Product_Code: 819 - Unique Product_Code: 811
 
 향후 3주간의 구매량을 예측하기 위해 학습 데이터로 이전 7주간의 데이터를 사용하였고, 라벨 데이터는 그 다음 3주간의 데이터를 활용하였습니다.
 
-따라서 각 데이터 별로 input column의 갯수는 7개이며, target column의 갯수는 3개입니다.
+따라서 각 데이터 별로 `input column`의 갯수는 7개이며, `target column`의 갯수는 3개입니다.
 
 ```python
 import numpy as np
