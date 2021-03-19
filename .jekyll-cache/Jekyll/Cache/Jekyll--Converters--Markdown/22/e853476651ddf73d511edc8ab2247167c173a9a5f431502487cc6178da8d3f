@@ -1,0 +1,268 @@
+I",�<h2 id="introduction">Introduction</h2>
+<p>Preprocessing cartegorical features is no easy task. The most basic technique would probably be one-hot-encoding method. However, one-hot-encoding is not efficient whenever the number of features is large. <br /> <br />
+In this article, We will learn how to handle many categorical features effectively even though the number of features is large. This technique was used by the winner of Kaggle’s “IEEE-CIS Fraud Detection” competition and can be found at <a href="https://www.kaggle.com/cdeotte/xgb-fraud-with-magic-0-9600">here</a>.</p>
+
+<h2 id="how-the-magic-works-source">How the Magic Works <a href="https://www.kaggle.com/cdeotte/xgb-fraud-with-magic-0-9600">(source)</a></h2>
+<p>The magic is two things. First we need a UID variable to identify clients (credit cards). Second, we need to create aggregated group features. Then we remove UID. Suppose we had 10 transactions <code class="language-plaintext highlighter-rouge">A, B, C, D, E, F, G, H, I, J</code> as below.</p>
+
+<div style="text-align:center"><img src="http://playagricola.com/Kaggle/table.jpg" /></div>
+
+<p>If we only use FeatureX, we can classify 70% of the transactions correctly. Below, yellow circles are <code class="language-plaintext highlighter-rouge">isFraud=1</code> and blue circles are <code class="language-plaintext highlighter-rouge">isFraud=0</code> transactions. After the tree model below splits data into left child and right child, we predict <code class="language-plaintext highlighter-rouge">isFraud=1</code> for left child and <code class="language-plaintext highlighter-rouge">isFraud=0</code> for right child. Thus 7 out of 10 predictions are correct.</p>
+
+<div style="text-align:center"><img src="http://playagricola.com/Kaggle/tran.jpg" /></div>
+
+<p>Now suppose that we have a UID which defines groups and we make an aggregated feature by taking the average of FeatureX within each group. We can now classify 100% of the transactions correctly. Note that we never use the feature UID in our decision tree.</p>
+
+<div style="text-align:center"><img src="http://playagricola.com/Kaggle/cred.jpg" /></div>
+
+<h2 id="data-explanation">Data Explanation</h2>
+
+<p>In the original dataframe, there are 392 features including both numeric features and categrical features.</p>
+
+<p><img src="https://user-images.githubusercontent.com/57972646/69213947-f28d9e00-0ba8-11ea-8347-61bfd27f4f3c.png" alt="Selection_004" /></p>
+
+<h2 id="feature-information">Feature Information</h2>
+
+<h3 id="transaction-table">Transaction Table</h3>
+<ul>
+  <li>TransactionDT: timedelta from a given reference datetime (not an actual timestamp)</li>
+  <li>TransactionAMT: transaction payment amount in USD</li>
+  <li>ProductCD: product code, the product for each transaction</li>
+  <li>card1 - card6: payment card information, such as card type, card category, issue bank, country, etc.</li>
+  <li>addr: address</li>
+  <li>dist: distance</li>
+  <li>P_ and (R__) emaildomain: purchaser and recipient email domain</li>
+  <li>C1-C14: counting, such as how many addresses are found to be associated with the payment card, etc. The actual meaning is masked.</li>
+  <li>D1-D15: timedelta, such as days between previous transaction, etc.</li>
+  <li>M1-M9: match, such as names on card and address, etc.</li>
+  <li>Vxxx: Vesta engineered rich features, including ranking, counting, and other entity relations.</li>
+</ul>
+
+<p>Categorical Features:</p>
+<ul>
+  <li>ProductCD</li>
+  <li>card1 - card6</li>
+  <li>addr1, addr2</li>
+  <li>Pemaildomain Remaildomain</li>
+  <li>M1 - M9</li>
+</ul>
+
+<h3 id="identity-table">Identity Table</h3>
+
+<p>Variables in this table are identity information – network connection information (IP, ISP, Proxy, etc) and digital signature (UA/browser/os/version, etc) associated with transactions. 
+They’re collected by Vesta’s fraud protection system and digital security partners.
+(The field names are masked and pairwise dictionary will not be provided for privacy protection and contract agreement)</p>
+
+<p>Categorical Features:</p>
+<ul>
+  <li>DeviceType <br /></li>
+  <li>DeviceInfo <br /></li>
+  <li>id12 - id38</li>
+</ul>
+
+<h3 id="read-data">Read data</h3>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span><span class="p">,</span> <span class="n">pandas</span> <span class="k">as</span> <span class="n">pd</span><span class="p">,</span> <span class="n">os</span><span class="p">,</span> <span class="n">gc</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GroupKFold</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">roc_auc_score</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+
+<span class="c1"># LOAD TRAIN
+</span><span class="n">X_train</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'../input/ieee-fraud-detection/train_transaction.csv'</span><span class="p">,</span><span class="n">index_col</span><span class="o">=</span><span class="s">'TransactionID'</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">train_id</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'../input/ieee-fraud-detection/train_identity.csv'</span><span class="p">,</span><span class="n">index_col</span><span class="o">=</span><span class="s">'TransactionID'</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">X_train</span><span class="p">.</span><span class="n">merge</span><span class="p">(</span><span class="n">train_id</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s">'left'</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c1"># LOAD TEST
+</span><span class="n">X_test</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'../input/ieee-fraud-detection/test_transaction.csv'</span><span class="p">,</span><span class="n">index_col</span><span class="o">=</span><span class="s">'TransactionID'</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">test_id</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'../input/ieee-fraud-detection/test_identity.csv'</span><span class="p">,</span><span class="n">index_col</span><span class="o">=</span><span class="s">'TransactionID'</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">X_test</span><span class="p">.</span><span class="n">merge</span><span class="p">(</span><span class="n">test_id</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s">'left'</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="c1"># TARGET
+</span><span class="n">y_train</span> <span class="o">=</span> <span class="n">X_train</span><span class="p">[</span><span class="s">'isFraud'</span><span class="p">].</span><span class="n">copy</span><span class="p">()</span>
+<span class="k">del</span> <span class="n">train_id</span><span class="p">,</span> <span class="n">test_id</span><span class="p">,</span> <span class="n">X_train</span><span class="p">[</span><span class="s">'isFraud'</span><span class="p">];</span> 
+<span class="n">x</span> <span class="o">=</span> <span class="n">gc</span><span class="p">.</span><span class="n">collect</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># PRINT STATUS
+</span><span class="o">&gt;&gt;&gt;</span><span class="k">print</span><span class="p">(</span><span class="s">'Train shape'</span><span class="p">,</span><span class="n">X_train</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span><span class="s">'test shape'</span><span class="p">,</span><span class="n">X_test</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">Train</span> <span class="n">shape</span> <span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">432</span><span class="p">)</span> <span class="n">test</span> <span class="n">shape</span> <span class="p">(</span><span class="mi">10000</span><span class="p">,</span> <span class="mi">432</span><span class="p">)</span>
+</code></pre></div></div>
+<h2 id="basic-feature-engineering">Basic Feature Engineering</h2>
+
+<p>We use pandas’s factorize function to convert categorical variables into numeric variables.</p>
+
+<h3 id="pandasfactorize">Pandas.factorize</h3>
+<p>pandas.factorize(values, sort=False, order=None, na_sentinel=-1, size_hint=None) <br />
+Encode the object as an enumerated type or categorical variable.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">labels</span><span class="p">,</span> <span class="n">uniques</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">factorize</span><span class="p">([</span><span class="s">'b'</span><span class="p">,</span> <span class="s">'b'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">,</span> <span class="s">'c'</span><span class="p">,</span> <span class="s">'b'</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">labels</span>
+<span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">uniques</span>
+<span class="n">array</span><span class="p">([</span><span class="s">'b'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">,</span> <span class="s">'c'</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The next things to do are:</p>
+
+<ol>
+  <li>(factorize) Convert categorical variables using pandas’ factorize function.</li>
+  <li>(memory reduce) If the max value is 32000 or higher, the data type is converted to ‘int32’ type, otherwise it is converted to ‘int32’.</li>
+  <li>(positive) Change all numeric values to zero or above.</li>
+  <li>(NAN to -1) Convert all NAN values to -1.</li>
+</ol>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># LABEL ENCODE AND MEMORY REDUCE
+</span><span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">X_train</span><span class="p">.</span><span class="n">columns</span><span class="p">):</span>
+    <span class="c1"># FACTORIZE CATEGORICAL VARIABLES
+</span>    <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nb">str</span><span class="p">(</span><span class="n">X_train</span><span class="p">[</span><span class="n">f</span><span class="p">].</span><span class="n">dtype</span><span class="p">)</span><span class="o">==</span><span class="s">'category'</span><span class="p">)</span><span class="o">|</span><span class="p">(</span><span class="n">X_train</span><span class="p">[</span><span class="n">f</span><span class="p">].</span><span class="n">dtype</span><span class="o">==</span><span class="s">'object'</span><span class="p">):</span> 
+        <span class="n">df_comb</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span><span class="n">X_train</span><span class="p">[</span><span class="n">f</span><span class="p">],</span><span class="n">X_test</span><span class="p">[</span><span class="n">f</span><span class="p">]],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">df_comb</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">df_comb</span><span class="p">.</span><span class="n">factorize</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>        <span class="c1"># (factorize)
+</span>        <span class="k">if</span> <span class="n">df_comb</span><span class="p">.</span><span class="nb">max</span><span class="p">()</span><span class="o">&gt;</span><span class="mi">32000</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="s">'needs int32'</span><span class="p">)</span>  <span class="c1"># (memory reduce) 
+</span>        <span class="n">X_train</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_comb</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">X_train</span><span class="p">)].</span><span class="n">astype</span><span class="p">(</span><span class="s">'int16'</span><span class="p">)</span>
+        <span class="n">X_test</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_comb</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">X_train</span><span class="p">):].</span><span class="n">astype</span><span class="p">(</span><span class="s">'int16'</span><span class="p">)</span>
+        
+    <span class="c1"># SHIFT ALL NUMERICS POSITIVE. SET NAN to -1
+</span>    <span class="k">elif</span> <span class="n">f</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'TransactionAmt'</span><span class="p">,</span><span class="s">'TransactionDT'</span><span class="p">]:</span>
+        <span class="n">mn</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nb">min</span><span class="p">((</span><span class="n">X_train</span><span class="p">[</span><span class="n">f</span><span class="p">].</span><span class="nb">min</span><span class="p">(),</span><span class="n">X_test</span><span class="p">[</span><span class="n">f</span><span class="p">].</span><span class="nb">min</span><span class="p">()))</span>
+        <span class="n">X_train</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">(</span><span class="n">mn</span><span class="p">)</span>                   <span class="c1"># (positive)
+</span>        <span class="n">X_test</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">-=</span> <span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">(</span><span class="n">mn</span><span class="p">)</span>                    <span class="c1"># (NAN to -1)
+</span>        <span class="n">X_train</span><span class="p">[</span><span class="n">f</span><span class="p">].</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">X_test</span><span class="p">[</span><span class="n">f</span><span class="p">].</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Since this is time series data, we use the first 75% as the train set and the latter 25% as the validation set.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># CHRIS - TRAIN 75% PREDICT 25%
+</span><span class="n">idxT</span> <span class="o">=</span> <span class="n">X_train</span><span class="p">.</span><span class="n">index</span><span class="p">[:</span><span class="mi">3</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">]</span>
+<span class="n">idxV</span> <span class="o">=</span> <span class="n">X_train</span><span class="p">.</span><span class="n">index</span><span class="p">[</span><span class="mi">3</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">:]</span>
+</code></pre></div></div>
+
+<p>We will now test the performance of the original version of the XGBoost model.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">xgboost</span> <span class="k">as</span> <span class="n">xgb</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"XGBoost version:"</span><span class="p">,</span> <span class="n">xgb</span><span class="p">.</span><span class="n">__version__</span><span class="p">)</span>
+
+<span class="n">clf</span> <span class="o">=</span> <span class="n">xgb</span><span class="p">.</span><span class="n">XGBClassifier</span><span class="p">(</span> 
+    <span class="n">n_estimators</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+    <span class="n">max_depth</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> 
+    <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> 
+    <span class="n">subsample</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+    <span class="n">colsample_bytree</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> 
+    <span class="n">missing</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> 
+    <span class="n">eval_metric</span><span class="o">=</span><span class="s">'auc'</span><span class="p">,</span>
+    <span class="c1"># USE CPU
+</span>    <span class="n">nthread</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">tree_method</span><span class="o">=</span><span class="s">'hist'</span> 
+    <span class="c1"># USE GPU
+</span>    <span class="c1">#tree_method='gpu_hist' 
+</span><span class="p">)</span>
+<span class="n">h</span> <span class="o">=</span> <span class="n">clf</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idxT</span><span class="p">],</span> <span class="n">y_train</span><span class="p">[</span><span class="n">idxT</span><span class="p">],</span> 
+    <span class="n">eval_set</span><span class="o">=</span><span class="p">[(</span><span class="n">X_train</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idxV</span><span class="p">],</span><span class="n">y_train</span><span class="p">[</span><span class="n">idxV</span><span class="p">])],</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">early_stopping_rounds</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="n">feature_imp</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">clf</span><span class="p">.</span><span class="n">feature_importances_</span><span class="p">,</span><span class="n">cols</span><span class="p">)),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s">'Value'</span><span class="p">,</span><span class="s">'Feature'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">sns</span><span class="p">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s">"Value"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s">"Feature"</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">feature_imp</span><span class="p">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s">"Value"</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">).</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">50</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">'XGB95 Most Important Features'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+<span class="k">del</span> <span class="n">clf</span><span class="p">,</span> <span class="n">h</span><span class="p">;</span> <span class="n">x</span><span class="o">=</span><span class="n">gc</span><span class="p">.</span><span class="n">collect</span><span class="p">()</span>
+</code></pre></div></div>
+<p>The result is as follows:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>XGBoost version: 0.90
+[0]	validation_0-auc:0.677229
+Will train until validation_0-auc hasn't improved in 100 rounds.
+[50]	validation_0-auc:0.831485
+[100]	validation_0-auc:0.841948
+[150]	validation_0-auc:0.857862
+[200]	validation_0-auc:0.860735
+[250]	validation_0-auc:0.868282
+[300]	validation_0-auc:0.867505
+Stopping. Best iteration:
+[245]	validation_0-auc:0.86896
+</code></pre></div></div>
+
+<h2 id="advanced-feature-engineering-using-the-magic-features">Advanced Feature Engineering using the Magic Features</h2>
+<p>Let’s take a look at how to use the magic feature to improve the performance of the original XGBoost model. <br />
+This requires two other operations. <br /></p>
+<blockquote>
+  <p>COMBINE FEATURES</p>
+</blockquote>
+
+<p>Concatenate two string type features to create a new feature. Ex) Hyundai Card + Suwon = Hyundai Card_Suwon <br /></p>
+<blockquote>
+  <p>GROUP AGGREGATION MEAN AND STD</p>
+</blockquote>
+
+<p>Based on one feature, group the items belonging to the same class to find mean and std and add each new feature.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># COMBINE FEATURES
+</span><span class="k">def</span> <span class="nf">encode_CB</span><span class="p">(</span><span class="n">col1</span><span class="p">,</span><span class="n">col2</span><span class="p">,</span><span class="n">df1</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span><span class="n">df2</span><span class="o">=</span><span class="n">X_test</span><span class="p">):</span>
+    <span class="n">nm</span> <span class="o">=</span> <span class="n">col1</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">col2</span>
+    <span class="n">df1</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[</span><span class="n">col1</span><span class="p">].</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">df1</span><span class="p">[</span><span class="n">col2</span><span class="p">].</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">df2</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="n">col1</span><span class="p">].</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">df2</span><span class="p">[</span><span class="n">col2</span><span class="p">].</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span> 
+    <span class="n">encode_LE</span><span class="p">(</span><span class="n">nm</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">nm</span><span class="p">,</span><span class="s">', '</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+
+<span class="c1"># GROUP AGGREGATION MEAN AND STD
+# https://www.kaggle.com/kyakovlev/ieee-fe-with-some-eda
+</span><span class="k">def</span> <span class="nf">encode_AG</span><span class="p">(</span><span class="n">main_columns</span><span class="p">,</span> <span class="n">uids</span><span class="p">,</span> <span class="n">aggregations</span><span class="o">=</span><span class="p">[</span><span class="s">'mean'</span><span class="p">],</span> <span class="n">train_df</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span> <span class="n">test_df</span><span class="o">=</span><span class="n">X_test</span><span class="p">,</span> 
+              <span class="n">fillna</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">usena</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="c1"># AGGREGATION OF MAIN WITH UID FOR GIVEN STATISTICS
+</span>    <span class="k">for</span> <span class="n">main_column</span> <span class="ow">in</span> <span class="n">main_columns</span><span class="p">:</span>  
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">uids</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">agg_type</span> <span class="ow">in</span> <span class="n">aggregations</span><span class="p">:</span>
+                <span class="n">new_col_name</span> <span class="o">=</span> <span class="n">main_column</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">col</span><span class="o">+</span><span class="s">'_'</span><span class="o">+</span><span class="n">agg_type</span>
+                <span class="n">temp_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train_df</span><span class="p">[[</span><span class="n">col</span><span class="p">,</span> <span class="n">main_column</span><span class="p">]],</span> <span class="n">test_df</span><span class="p">[[</span><span class="n">col</span><span class="p">,</span><span class="n">main_column</span><span class="p">]]])</span>
+                <span class="k">if</span> <span class="n">usena</span><span class="p">:</span> <span class="n">temp_df</span><span class="p">.</span><span class="n">loc</span><span class="p">[</span><span class="n">temp_df</span><span class="p">[</span><span class="n">main_column</span><span class="p">]</span><span class="o">==-</span><span class="mi">1</span><span class="p">,</span><span class="n">main_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">nan</span>
+                <span class="n">temp_df</span> <span class="o">=</span> <span class="n">temp_df</span><span class="p">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">col</span><span class="p">])[</span><span class="n">main_column</span><span class="p">].</span><span class="n">agg</span><span class="p">([</span><span class="n">agg_type</span><span class="p">]).</span><span class="n">reset_index</span><span class="p">().</span><span class="n">rename</span><span class="p">(</span>
+                                                        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">agg_type</span><span class="p">:</span> <span class="n">new_col_name</span><span class="p">})</span>
+
+                <span class="n">temp_df</span><span class="p">.</span><span class="n">index</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">temp_df</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+                <span class="n">temp_df</span> <span class="o">=</span> <span class="n">temp_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">].</span><span class="n">to_dict</span><span class="p">()</span>   
+
+                <span class="n">train_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="n">col</span><span class="p">].</span><span class="nb">map</span><span class="p">(</span><span class="n">temp_df</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+                <span class="n">test_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">]</span>  <span class="o">=</span> <span class="n">test_df</span><span class="p">[</span><span class="n">col</span><span class="p">].</span><span class="nb">map</span><span class="p">(</span><span class="n">temp_df</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="s">'float32'</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="n">fillna</span><span class="p">:</span>
+                    <span class="n">train_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">].</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                    <span class="n">test_df</span><span class="p">[</span><span class="n">new_col_name</span><span class="p">].</span><span class="n">fillna</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                
+                <span class="k">print</span><span class="p">(</span><span class="s">"'"</span><span class="o">+</span><span class="n">new_col_name</span><span class="o">+</span><span class="s">"'"</span><span class="p">,</span><span class="s">', '</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+                
+<span class="c1"># LABEL ENCODE
+</span><span class="k">def</span> <span class="nf">encode_LE</span><span class="p">(</span><span class="n">col</span><span class="p">,</span><span class="n">train</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span><span class="n">test</span><span class="o">=</span><span class="n">X_test</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="n">df_comb</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train</span><span class="p">[</span><span class="n">col</span><span class="p">],</span><span class="n">test</span><span class="p">[</span><span class="n">col</span><span class="p">]],</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">df_comb</span><span class="p">,</span><span class="n">_</span> <span class="o">=</span> <span class="n">df_comb</span><span class="p">.</span><span class="n">factorize</span><span class="p">(</span><span class="n">sort</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">nm</span> <span class="o">=</span> <span class="n">col</span>
+    <span class="k">if</span> <span class="n">df_comb</span><span class="p">.</span><span class="nb">max</span><span class="p">()</span><span class="o">&gt;</span><span class="mi">32000</span><span class="p">:</span> 
+        <span class="n">train</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_comb</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)].</span><span class="n">astype</span><span class="p">(</span><span class="s">'int32'</span><span class="p">)</span>
+        <span class="n">test</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_comb</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">):].</span><span class="n">astype</span><span class="p">(</span><span class="s">'int32'</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">train</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_comb</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)].</span><span class="n">astype</span><span class="p">(</span><span class="s">'int16'</span><span class="p">)</span>
+        <span class="n">test</span><span class="p">[</span><span class="n">nm</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_comb</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">):].</span><span class="n">astype</span><span class="p">(</span><span class="s">'int16'</span><span class="p">)</span>
+    <span class="k">del</span> <span class="n">df_comb</span><span class="p">;</span> <span class="n">x</span><span class="o">=</span><span class="n">gc</span><span class="p">.</span><span class="n">collect</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="n">nm</span><span class="p">,</span><span class="s">', '</span><span class="p">,</span><span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>We use the function ‘encode_CB’ to combine columns card1+addr1, card1+addr1+P_emaildomain</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">encode_CB</span><span class="p">(</span><span class="s">'card1'</span><span class="p">,</span><span class="s">'addr1'</span><span class="p">)</span>
+<span class="n">encode_CB</span><span class="p">(</span><span class="s">'card1_addr1'</span><span class="p">,</span><span class="s">'P_emaildomain'</span><span class="p">)</span>
+</code></pre></div></div>
+<p>Use the function ‘encode_LE’ to get the aggregated mean and std for the feature created above and add it as new features.</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">encode_AG</span><span class="p">([</span><span class="s">'TransactionAmt'</span><span class="p">,</span><span class="s">'D9'</span><span class="p">,</span><span class="s">'D11'</span><span class="p">],[</span><span class="s">'card1'</span><span class="p">,</span><span class="s">'card1_addr1'</span><span class="p">,</span><span class="s">'card1_addr1_P_emaildomain'</span><span class="p">],[</span><span class="s">'mean'</span><span class="p">,</span><span class="s">'std'</span><span class="p">],</span><span class="n">usena</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div></div>
+<p>Now let’s run XGBoost with the input data containing the newly added features.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>XGBoost version: 0.90
+[0]	validation_0-auc:0.673694
+Will train until validation_0-auc hasn't improved in 100 rounds.
+[50]	validation_0-auc:0.883513
+[100]	validation_0-auc:0.930568
+[150]	validation_0-auc:0.965679
+[200]	validation_0-auc:0.978922
+[250]	validation_0-auc:0.979067
+[300]	validation_0-auc:0.977088
+Stopping. Best iteration:
+[218]	validation_0-auc:0.979635
+</code></pre></div></div>
+<p>Great! The score has increased from 0.86896 -&gt; 0.979635.</p>
+
+:ET

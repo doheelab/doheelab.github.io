@@ -1,0 +1,250 @@
+<p>이 글에서는 <code class="language-plaintext highlighter-rouge">pandas</code>를 이용하여 <code class="language-plaintext highlighter-rouge">json</code> 데이터를 분석하기 좋은 형태로 변환하는 방법에 대해 설명합니다.</p>
+
+<p>데이터의 출처는 <a href="http://jmcauley.ucsd.edu/data/amazon/links.html">UCSD Amazon Product Dataset</a>이고, Amazon의 Data Scientist인 Eugene Yan의 <a href="https://eugeneyan.com/writing/recommender-systems-baseline-pytorch/">글</a>을 참고하였습니다.</p>
+
+<h2 id="데이터-소개">데이터 소개</h2>
+
+<p>본 글에서 사용할 상품 데이터의 형태는 다음과 같습니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{ 
+"asin": "0000031852",
+"title": "Girls Ballet Tutu Zebra Hot Pink",
+"price": 3.17,
+"imUrl": "http://ecx.images-amazon.com/images/I/51fAmVkTbyL._SY300_.jpg",
+"related”:
+    { "also_bought":[
+		  	"B00JHONN1S",
+		  	"B002BZX8Z6",
+		  	"B00D2K1M3O", 
+		  	...
+		  	"B007R2RM8W"
+                    ],
+      "also_viewed":[ 
+		  	"B002BZX8Z6",
+		  	"B00JHONN1S",
+		  	"B008F0SU0Y",
+		  	...
+		  	"B00BFXLZ8M"
+                     ],
+      "bought_together":[ 
+		  	"B002BZX8Z6"
+                     ]
+    },
+"salesRank":
+    { 
+      "Toys &amp; Games":211836
+    },
+"brand": "Coxlures",
+"categories":[ 
+	    [ "Sports &amp; Outdoors",
+	      "Other Sports",
+	      "Dance"
+	    ]
+    ]
+}
+</code></pre></div></div>
+
+<div align="center">
+  <i>Amazon product dataset</i>
+</div>
+
+<p>위 데이터는 다음 <a href="http://jmcauley.ucsd.edu/data/amazon/links.html">링크</a>에서 다운받을 수 있습니다.</p>
+
+<p>이 페이지에서 다운로드 할 수 있는 여러 데이터 중에서, <em>meta_Electronics.json.gz</em>를 사용하였습니다.</p>
+
+<hr />
+<h2 id="파싱parsing이란">파싱(Parsing)이란?</h2>
+
+<p><code class="language-plaintext highlighter-rouge">json</code> 데이터를 어떻게 분석에 사용할 수 있을까요?</p>
+
+<p>위와 같은 소스파일을 사용자가 해석하기 좋은 형태로 변환하는 작업을 <strong>파싱(parsing)</strong>이라고 합니다.</p>
+
+<p><strong>파싱(Parsing)</strong>은 소스파일을 의미있는 단어의 단위로 잘라서 해석하는 작업을 말합니다.</p>
+
+<p>파싱의 예는 다음과 같습니다.</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">printf("hello")</code>라는 구문을 <code class="language-plaintext highlighter-rouge">printf</code>와 <code class="language-plaintext highlighter-rouge">(, ", hello, ", )</code>로 단어와 기호들을 하나씩 나누기</p>
+  </li>
+  <li>
+    <p>브라우저에서 HTML을 DOM 트리로 변환</p>
+  </li>
+  <li>
+    <p>어떤 data를 원하는 form으로 만들어내는 작업</p>
+  </li>
+</ul>
+
+<p>이처럼 data를 이해하기 쉬운 형태로 변환하는 작업을 <strong>파싱</strong>이라고 할 수 있습니다.</p>
+
+<hr />
+
+<h2 id="pandas를-이용하여-json-데이터-파싱하기">pandas를 이용하여 json 데이터 파싱하기</h2>
+
+<p>용량이 큰 <code class="language-plaintext highlighter-rouge">json</code> 파일을 한번에 읽어서 <code class="language-plaintext highlighter-rouge">dataframe</code>으로 변환하는 것은 불가능합니다.</p>
+
+<p>따라서 파이썬의 <code class="language-plaintext highlighter-rouge">generator</code>를 사용하여 한줄씩 읽고 변환하는 것이 좋습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">gzip</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">"rb"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="nb">eval</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="eval"><code class="language-plaintext highlighter-rouge">eval</code></h3>
+
+<p>위 코드의 <code class="language-plaintext highlighter-rouge">eval</code> 함수는 문자열을 실행하는 함수 입니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">json</code>의 <code class="language-plaintext highlighter-rouge">value</code>값은 문자열로 저장되어 있기 때문에, 이를 <code class="language-plaintext highlighter-rouge">dictionary</code>로 변환하기 위해서 <code class="language-plaintext highlighter-rouge">eval</code> 함수를 사용합니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">eval</span><span class="p">(</span><span class="sa">b</span><span class="s">"{'asin': '0132793040', 'imUrl': 'http://ecx.images-amazon.com/images/I/31JIPhp%2BGIL.jpg', 'categories': [['Electronics', 'Computers &amp; Accessories', 'Cables &amp; Accessories', 'Monitor Accessories']], 'title': 'Kelby Training DVD: Mastering Blend Modes in Adobe Photoshop CS5 By Corey Barker'}</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{'asin': '0132793040', 'imUrl': 'http://ecx.images-amazon.com/images/I/31JIPhp%2BGIL.jpg', 'categories': [['Electronics', 'Computers &amp; Accessories', 'Cables &amp; Accessories', 'Monitor Accessories']], 'title': 'Kelby Training DVD: Mastering Blend Modes in Adobe Photoshop CS5 By Corey Barker'}
+</code></pre></div></div>
+
+<div align="center">
+  <i>eval 함수의 활용 예시</i>
+</div>
+
+<p>위에서 정의한 <code class="language-plaintext highlighter-rouge">parse</code> 함수를 사용하여, <code class="language-plaintext highlighter-rouge">json</code> 데이터를 <code class="language-plaintext highlighter-rouge">dataframe</code>으로 변경하는 코드는 다음과 같습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">parse_json_to_df</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">df_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">parse</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">df_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">100000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"Rows processed: {:,}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">df_dict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s">"index"</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s">"related"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">"related"</span><span class="p">].</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s">"categories"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">"categories"</span><span class="p">].</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s">"salesRank"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">"salesRank"</span><span class="p">].</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+</code></pre></div></div>
+
+<h3 id="from_dict"><code class="language-plaintext highlighter-rouge">from_dict</code></h3>
+<p><code class="language-plaintext highlighter-rouge">from_dict</code> 함수는 <code class="language-plaintext highlighter-rouge">dictionary</code>를 <code class="language-plaintext highlighter-rouge">dataframe</code>으로 변환시켜주는 함수입니다. 예를 들어,</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_dict</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="s">"a"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">"b"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s">"a"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s">"b"</span><span class="p">:</span> <span class="mi">4</span><span class="p">}}</span>
+<span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">df_dict</span><span class="p">)</span>
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>0</th>
+      <th>1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>a</td>
+      <td>1</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>b</td>
+      <td>2</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<p>와 같이 사용할 수 있습니다. 이때 <code class="language-plaintext highlighter-rouge">orient</code>의 기본값은 <code class="language-plaintext highlighter-rouge">columns</code>이며, <code class="language-plaintext highlighter-rouge">dictionary</code>의 키를 열의 레이블로 설정합니다.</p>
+
+<p>만일 <code class="language-plaintext highlighter-rouge">orient='index'</code>로 설정하면 <code class="language-plaintext highlighter-rouge">dictionary</code>의 키를 행의 레이블로 설정할 수 있습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df_dict</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="p">{</span><span class="s">"a"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">"b"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="mi">1</span><span class="p">:</span> <span class="p">{</span><span class="s">"a"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s">"b"</span><span class="p">:</span> <span class="mi">4</span><span class="p">}}</span>
+<span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">df_dict</span><span class="p">,</span> <span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s">"index"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>a</th>
+      <th>b</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>0</td>
+      <td>1</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td>3</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>저희도 <code class="language-plaintext highlighter-rouge">orident="index"</code>로 설정하여 코드를 실행하겠습니다.</p>
+
+<hr />
+
+<p><br /></p>
+
+<h2 id="전체코드">전체코드</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">logger</span><span class="p">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s">"%(asctime)s - %(message)s"</span><span class="p">)</span>
+
+<span class="c1"># create console handler and set level to info
+</span><span class="n">ch</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="n">StreamHandler</span><span class="p">()</span>
+<span class="n">ch</span><span class="p">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+<span class="n">ch</span><span class="p">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="p">.</span><span class="n">INFO</span><span class="p">)</span>
+
+<span class="c1"># add ch to logger
+</span><span class="n">logger</span><span class="p">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">gzip</span><span class="p">.</span><span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">"rb"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="nb">eval</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">parse_json_to_df</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">df_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">parse</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+        <span class="n">df_dict</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">d</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">100000</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">"Rows processed: {:,}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">df_dict</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s">"index"</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s">"related"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">"related"</span><span class="p">].</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s">"categories"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">"categories"</span><span class="p">].</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s">"salesRank"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">"salesRank"</span><span class="p">].</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+<span class="n">parse_json_to_df</span><span class="p">(</span><span class="s">"../../save/meta_Electronics.json.gz"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="실행결과">실행결과</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2021-03-19 12:06:36,158 - Rows processed: 100,000
+2021-03-19 12:06:44,236 - Rows processed: 200,000
+2021-03-19 12:06:53,033 - Rows processed: 300,000
+2021-03-19 12:07:02,418 - Rows processed: 400,000
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/57972646/111726593-97f37780-88ac-11eb-991f-85974c30362d.png" alt="" /></p>
+
+<h2 id="reference">Reference</h2>
+
+<p>[1] [<a href="https://eugeneyan.com/writing/recommender-systems-baseline-pytorch/">Building a Strong Baseline Recommender in PyTorch, on a Laptop</a></p>
+
+<p>[2] <a href="https://rednose86.tistory.com/10">파싱(Parsing)과 컴파일(Compile)의 차이점</a></p>

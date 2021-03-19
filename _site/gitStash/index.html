@@ -1,0 +1,68 @@
+<h2 id="git-stash를-사용하는-이유">git stash를 사용하는 이유</h2>
+
+<p>한 브랜치에서 작업을 하다가 다른 브랜치로 checkout 해야하는 경우가 있습니다.</p>
+
+<p>이때 <code class="language-plaintext highlighter-rouge">git checkout [브랜치]</code>를 사용하면 다음과 같은 오류를 만나게 됩니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rror: Your local changes to the following files would be overwritten by checkout:
+	_posts/2021-03-17-gitStash.md
+Please, commit your changes or stash them before you can switch branches.
+</code></pre></div></div>
+
+<p>즉, 현재 로컬의 상태에 변화가 있다면 브랜치를 변경하기 전에 반드시 <code class="language-plaintext highlighter-rouge">commit</code> 혹은 <code class="language-plaintext highlighter-rouge">stash</code>를 사용해야 합니다.
+<code class="language-plaintext highlighter-rouge">git commit</code> 후에 브랜치를 변경할 수도 있지만, <code class="language-plaintext highlighter-rouge">commit</code>하지 않고 나중에 다시 돌아와서 작업을 하기 위해서 <code class="language-plaintext highlighter-rouge">git stash</code>를 사용하면, <code class="language-plaintext highlighter-rouge">git stash apply</code> 혹은 <code class="language-plaintext highlighter-rouge">git stash pop</code>를 통해 나중에 불러올 수 있습니다.</p>
+
+<p>또한 이렇게 저장한 내용을 다른 브랜치에 적용하는 것도 가능합니다. (잘못된 브랜치에서 작업 시 유용하게 사용)</p>
+
+<hr />
+
+<p><br /></p>
+
+<h2 id="git-stash-필수-명령어">git stash 필수 명령어</h2>
+
+<p>다음은 <code class="language-plaintext highlighter-rouge">git stash</code>를 사용하기 위한 필수 명령어입니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">명령어</th>
+      <th style="text-align: center">역할</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash (save)</code></td>
+      <td style="text-align: center">작업 내용을 stash 공간에 안전하게 보관합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash list</code></td>
+      <td style="text-align: center">보관 중인 stash 목록을 조회합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash apply</code></td>
+      <td style="text-align: center">stash에 저장된 내용을 현재 브랜치에 적용합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash drop</code></td>
+      <td style="text-align: center">stash에 저장된 내용을 삭제합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash pop</code></td>
+      <td style="text-align: center">stash에 저장된 내용을 현재 브랜치에 적용한 후, 삭제합니다. (<code class="language-plaintext highlighter-rouge">apply</code> + <code class="language-plaintext highlighter-rouge">pop</code>)</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p><br /></p>
+
+<h3 id="tip-git-stash-apply-index"><mark>TIP</mark> git stash apply –index</h3>
+
+<p><code class="language-plaintext highlighter-rouge">–index</code> 옵션을 주면 Staged 상태까지 그대로 복원합니다.</p>
+
+<h2 id="참고자료">참고자료</h2>
+
+<p>[1] <a href="https://gmlwjd9405.github.io/2018/05/18/git-stash.html">[Git] git stash 명령어 사용하기</a></p>
+
+<p>[2] <a href="https://mylko72.gitbooks.io/git/content/_stash.html">스테이시(stash)에 안전하게 보관하기</a></p>
