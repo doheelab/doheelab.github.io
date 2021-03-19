@@ -32,7 +32,7 @@ Stacked LSTM은 LSTM이 더 복잡한 task를 해결할 수 있도록, 모델의
 
 [Sales_Transactions_Dataset_Weekly Data Set](https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly)
 
-총 811개의 상품에 대하여 52주 동안의 주별 구매량 데이터를 활용 하겠습니다.
+총 811개의 상품에 대하여 52주 동안의 주별 구매량 데이터를 활용하겠습니다.
 
 ---
 <br/>
