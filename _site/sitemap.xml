@@ -33,6 +33,10 @@
         <loc>https://doheelab.github.io/machine-learning/first-post/</loc>
     </url>
     
+    <url>
+        <loc>https://doheelab.github.io/blog/first-post/</loc>
+    </url>
+    
 
     
     
@@ -44,6 +48,32 @@
     </url>
     
     
+    
+    
+    
+    
+    
+    
+    
+    <url>
+        <loc>https://doheelab.github.io/assets/js/lunr/lunr-en.js</loc>
+    </url>
+    
+    
+    
+    
+    
+    <url>
+        <loc>https://doheelab.github.io/assets/js/lunr/lunr-gr.js</loc>
+    </url>
+    
+    
+    
+    
+    
+    <url>
+        <loc>https://doheelab.github.io/assets/js/lunr/lunr-store.js</loc>
+    </url>
     
     
     
