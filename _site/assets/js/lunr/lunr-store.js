@@ -5,6 +5,30 @@ var store = [{
         "url": "/blog/first-post/",
         "teaser": null
       },{
+        "title": "서시 - Yoon",
+        "excerpt":"서시   죽는 날까지 하늘을 우러러  한점 부끄럼이 없기를,  잎새에 이는 바람에도  나는 괴로워했다.  별을 노래하는 마음으로  모든 죽어가는 것을 사랑해야지  그리고 나한테 주어진 길을  걸어가야겠다.   오늘밤에도 별이 바람에 스치운다.  ","categories": ["Yoon"],
+        "tags": ["서시","Yoon","시"],
+        "url": "/yoon/si-susi/",
+        "teaser": null
+      },{
+        "title": "자화상 - Yoon",
+        "excerpt":"자화상 산모퉁이를 돌아 논가 외딴 우물을 홀로 찾아가선 가만히 들여다봅니다. 우물 속에는 달이 밝고 구름이 흐르고 하늘이 펼치고 파아란 바람이 불고 가을이 있습니다. 그리고 한 사나이가 있습니다. 어쩐지 그 사나이가 미워져 돌아갑니다. 돌아가다 생각하니 그 사나이가 가엾어집니다. 도로 가 들여다보니 사나이는 그대로 있습니다. 다시 그 사나이가 미워져 돌아갑니다. 돌아가다 생각하니...","categories": ["Yoon"],
+        "tags": ["자화상","Yoon","시"],
+        "url": "/yoon/si-jahwasing/",
+        "teaser": null
+      },{
+        "title": "별 헤는 밤 - Yoon",
+        "excerpt":"별 헤는 밤 계절이 지나가는 하늘에는 가을로 가득 차 있습니다. 나는 아무 걱정도 없이 가을 속의 별들을 다 헤일 듯합니다. 가슴 속에 하나 둘 새겨지는 별을 이제 다 못 헤는 것은 쉬이 아침이 오는 까닭이요, 내일 밤이 남은 까닭이요, 아직 나의 청춘이 다하지 않은 까닭입니다. 별 하나에 추억과 별 하나에...","categories": ["Yoon"],
+        "tags": ["별 헤는 밤","Yoon","시"],
+        "url": "/yoon/si-byul/",
+        "teaser": null
+      },{
+        "title": "신발 사러 간 날",
+        "excerpt":"오늘은 백화점에 신발을 사러 갔다. 백화점은 상상한 것 보다 엄청 나게 컸다. 신발도 무지무지하게 많았다. 그 중에서 제일 맘에 드는 신발을 샀다.      내 신발 위 사진의 신발과 비슷하게 생겼다. 맘에 든다.  ","categories": ["일상"],
+        "tags": ["신발"],
+        "url": "/%EC%9D%BC%EC%83%81/buy-shoes/",
+        "teaser": "/assets/images/shoes.jpg"
+      },{
         "title": "Categorical variable encoding using aggregated mean and std",
         "excerpt":"Introduction Preprocessing cartegorical features is no easy task. The most basic technique would probably be one-hot-encoding method. However, one-hot-encoding is not efficient whenever the number of features is large. In this article, We will learn how to handle many categorical features effectively even though the number of features is large....","categories": ["machine-learning"],
         "tags": [],
@@ -49,7 +73,7 @@ var store = [{
       },{
         "title": "pandas를 이용하여 json 데이터 파싱하기",
         "excerpt":"이 글에서는 pandas를 이용하여 json 데이터를 분석하기 좋은 형태로 변환하는 방법에 대해 설명합니다. 데이터의 출처는 UCSD Amazon Product Dataset이고, Amazon의 Data Scientist인 Eugene Yan의 글을 참고하였습니다. 데이터 소개 본 글에서 사용할 상품 데이터의 형태는 다음과 같습니다. { \"asin\": \"0000031852\", \"title\": \"Girls Ballet Tutu Zebra Hot Pink\", \"price\": 3.17, \"imUrl\": \"http://ecx.images-amazon.com/images/I/51fAmVkTbyL._SY300_.jpg\",...","categories": [],
-        "tags": ["pandas"],
+        "tags": ["pandas","json"],
         "url": "/parse_json/",
         "teaser": null
       }]
