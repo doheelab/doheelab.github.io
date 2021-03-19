@@ -11,8 +11,6 @@ comments: true
 
 데이터의 출처는 [UCSD Amazon Product Dataset](http://jmcauley.ucsd.edu/data/amazon/links.html)이고, Amazon의 Data Scientist인 Eugene Yan의 [글](https://eugeneyan.com/writing/recommender-systems-baseline-pytorch/)을 참고하였습니다.
 
-<br/>
-
 ## 데이터 소개
 
 본 글에서 사용할 상품 데이터의 형태는 다음과 같습니다.
@@ -61,15 +59,11 @@ comments: true
   <i>Amazon product dataset</i>
 </div>
 
-<br/>
-
 위 데이터는 다음 [링크](http://jmcauley.ucsd.edu/data/amazon/links.html)에서 다운받을 수 있습니다. 
 
 이 페이지에서 다운로드 할 수 있는 여러 데이터 중에서, *meta_Electronics.json.gz*를 사용하였습니다.
 
 ---
-</br>
-
 ## 파싱(Parsing)이란?
 
 `json` 데이터를 어떻게 분석에 사용할 수 있을까요?
@@ -89,7 +83,6 @@ comments: true
 이처럼 data를 이해하기 쉬운 형태로 변환하는 작업을 **파싱**이라고 할 수 있습니다.
 
 ---
-<br/>
 
 ## pandas를 이용하여 json 데이터 파싱하기
 
@@ -122,8 +115,6 @@ eval(b"{'asin': '0132793040', 'imUrl': 'http://ecx.images-amazon.com/images/I/31
   <i>eval 함수의 활용 예시</i>
 </div>
 
-<br/>
-
 위에서 정의한 `parse` 함수를 사용하여, `json` 데이터를 `dataframe`으로 변경하는 코드는 다음과 같습니다.
 
 ```python
@@ -155,6 +146,7 @@ pd.DataFrame.from_dict(df_dict)
 |a|1|3|
 |b|2|4|
 
+
 <br/>
 
 와 같이 사용할 수 있습니다. 이때 `orient`의 기본값은 `columns`이며, `dictionary`의 키를 열의 레이블로 설정합니다.
@@ -170,8 +162,6 @@ pd.DataFrame.from_dict(df_dict, , orient="index")
 |------|---|---|
 |0|1|2|
 |1|3|4|
-
-<br/>
 
 저희도 `orident="index"`로 설정하여 코드를 실행하겠습니다.
 
