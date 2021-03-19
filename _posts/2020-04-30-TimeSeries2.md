@@ -170,7 +170,7 @@ def deep_lstm():
 ---
 <br/>
 
-# 학습하기
+## 학습하기
 
 ```python
 model = deep_lstm()
