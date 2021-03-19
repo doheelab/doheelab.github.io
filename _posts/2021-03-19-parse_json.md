@@ -237,6 +237,6 @@ parse_json_to_df("../../save/meta_Electronics.json.gz")
 
 ## Reference
 
-[Building a Strong Baseline Recommender in PyTorch, on a Laptop] https://eugeneyan.com/writing/recommender-systems-baseline-pytorch/
+[1] [[Building a Strong Baseline Recommender in PyTorch, on a Laptop](https://eugeneyan.com/writing/recommender-systems-baseline-pytorch/)
 
-[파싱(Parsing)과 컴파일(Compile)의 차이점] https://rednose86.tistory.com/10
+[2] [파싱(Parsing)과 컴파일(Compile)의 차이점](https://rednose86.tistory.com/10)
