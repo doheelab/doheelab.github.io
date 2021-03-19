@@ -149,10 +149,12 @@ def parse_json_to_df(path: str) -> pd.DataFrame:
 df_dict = {0: {"a": 1, "b": 2}, 1: {"a": 3, "b": 4}}
 pd.DataFrame.from_dict(df_dict)
 ```
+
 ||0|1|
 |------|---|---|
 |a|1|3|
 |b|2|4|
+
 <br/>
 
 와 같이 사용할 수 있습니다. 이때 `orient`의 기본값은 `columns`이며, `dictionary`의 키를 열의 레이블로 설정합니다.
@@ -163,6 +165,7 @@ pd.DataFrame.from_dict(df_dict)
 df_dict = {0: {"a": 1, "b": 2}, 1: {"a": 3, "b": 4}}
 pd.DataFrame.from_dict(df_dict, , orient="index")
 ```
+
 ||a|b|
 |------|---|---|
 |0|1|2|
