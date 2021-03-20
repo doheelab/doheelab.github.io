@@ -5,8 +5,8 @@
     <description>An amazing website.</description>
     <link>https://doheelab.github.io/</link>
     <atom:link href="https://doheelab.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sat, 20 Mar 2021 09:28:16 +0900</pubDate>
-    <lastBuildDate>Sat, 20 Mar 2021 09:28:16 +0900</lastBuildDate>
+    <pubDate>Sat, 20 Mar 2021 23:36:23 +0900</pubDate>
+    <lastBuildDate>Sat, 20 Mar 2021 23:36:23 +0900</lastBuildDate>
     <generator>Jekyll v4.2.0</generator>
     
       <item>
@@ -272,7 +272,7 @@
         
         <category>Parsing</category>
         
-        <category>Data Preprocessing</category>
+        <category>Preprocessing</category>
         
         
         <category>pandas</category>

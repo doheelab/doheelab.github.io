@@ -43,7 +43,7 @@ var store = [{
       },{
         "title": "pandas를 이용하여 json 데이터 파싱하기",
         "excerpt":"이 글에서는 pandas를 이용하여 json 데이터를 분석하기 좋은 형태로 변환하는 방법에 대해 설명합니다. 데이터의 출처는 UCSD Amazon Product Dataset이고, Amazon의 Data Scientist인 Eugene Yan의 글을 참고하였습니다. 데이터 소개 본 글에서 사용할 상품 데이터의 형태는 다음과 같습니다. { \"asin\": \"0000031852\", \"title\": \"Girls Ballet Tutu Zebra Hot Pink\", \"price\": 3.17, \"imUrl\": \"http://ecx.images-amazon.com/images/I/51fAmVkTbyL._SY300_.jpg\",...","categories": ["pandas"],
-        "tags": ["Pandas","Json","Parsing","Data Preprocessing"],
+        "tags": ["Pandas","Json","Parsing","Preprocessing"],
         "url": "/pandas/parse_json/",
         "teaser": null
       }]

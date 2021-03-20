@@ -55,26 +55,6 @@
     
     
     
-    
-    
-    <url>
-        <loc>https://doheelab.github.io/tags/</loc>
-    </url>
-    
-    
-    
-    
-    
-    <url>
-        <loc>https://doheelab.github.io/categories/Yoon/</loc>
-    </url>
-    
-    
-    
-    
-    
-    
-    
     <url>
         <loc>https://doheelab.github.io/assets/js/lunr/lunr-en.js</loc>
     </url>
@@ -99,9 +79,31 @@
     
     
     
+    
+    
+    
+    
+    <url>
+        <loc>https://doheelab.github.io/tags/</loc>
+    </url>
+    
+    
+    
+    
+    
+    <url>
+        <loc>https://doheelab.github.io/categories/Yoon/</loc>
+    </url>
+    
+    
+    
+    
+    
     <url>
         <loc>https://doheelab.github.io/page2/</loc>
     </url>
+    
+    
     
     
     
