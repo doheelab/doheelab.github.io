@@ -5,8 +5,8 @@
     <description>An amazing website.</description>
     <link>https://doheelab.github.io/</link>
     <atom:link href="https://doheelab.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sat, 20 Mar 2021 23:36:23 +0900</pubDate>
-    <lastBuildDate>Sat, 20 Mar 2021 23:36:23 +0900</lastBuildDate>
+    <pubDate>Sun, 21 Mar 2021 00:05:18 +0900</pubDate>
+    <lastBuildDate>Sun, 21 Mar 2021 00:05:18 +0900</lastBuildDate>
     <generator>Jekyll v4.2.0</generator>
     
       <item>
@@ -266,13 +266,13 @@
         <link>https://doheelab.github.io/pandas/parse_json/</link>
         <guid isPermaLink="true">https://doheelab.github.io/pandas/parse_json/</guid>
         
-        <category>Pandas</category>
+        <category>pandas</category>
         
-        <category>Json</category>
+        <category>json</category>
         
-        <category>Parsing</category>
+        <category>parsing</category>
         
-        <category>Preprocessing</category>
+        <category>preprocessing</category>
         
         
         <category>pandas</category>
@@ -349,11 +349,11 @@
         <link>https://doheelab.github.io/motivation/Seungineer1/</link>
         <guid isPermaLink="true">https://doheelab.github.io/motivation/Seungineer1/</guid>
         
-        <category>Motivation</category>
+        <category>motivation</category>
         
-        <category>Career</category>
+        <category>career</category>
         
-        <category>Software Engineering</category>
+        <category>software-engineering</category>
         
         
         <category>motivation</category>
@@ -435,9 +435,9 @@ Please, commit your changes or stash them before you can switch branches.
         <link>https://doheelab.github.io/github/gitStash/</link>
         <guid isPermaLink="true">https://doheelab.github.io/github/gitStash/</guid>
         
-        <category>Github</category>
+        <category>github</category>
         
-        <category>Git Stash</category>
+        <category>git-stash</category>
         
         
         <category>github</category>
@@ -645,11 +645,11 @@ Please, commit your changes or stash them before you can switch branches.
         <link>https://doheelab.github.io/github/gitReset/</link>
         <guid isPermaLink="true">https://doheelab.github.io/github/gitReset/</guid>
         
-        <category>Github</category>
+        <category>github</category>
         
-        <category>Git Reset</category>
+        <category>git-reset</category>
         
-        <category>Git Revert</category>
+        <category>git-revert</category>
         
         
         <category>github</category>
@@ -911,19 +911,19 @@ Epoch 20/20
         <link>https://doheelab.github.io/machine-learning/TimeSeries2/</link>
         <guid isPermaLink="true">https://doheelab.github.io/machine-learning/TimeSeries2/</guid>
         
-        <category>Time Series</category>
+        <category>time-series-prediction</category>
         
-        <category>Neural Network</category>
+        <category>neural-network</category>
         
-        <category>Machine Learning</category>
+        <category>machine-learning</category>
         
-        <category>Deep Learning</category>
+        <category>deep-learning</category>
         
-        <category>Keras</category>
+        <category>keras</category>
         
-        <category>LSTM</category>
+        <category>lstm</category>
         
-        <category>Stacked LSTM</category>
+        <category>stacked-lstm</category>
         
         
         <category>machine-learning</category>
@@ -1131,17 +1131,17 @@ Epoch 20/20
         <link>https://doheelab.github.io/machine-learning/TimeSeries/</link>
         <guid isPermaLink="true">https://doheelab.github.io/machine-learning/TimeSeries/</guid>
         
-        <category>Time Series</category>
+        <category>time-series-prediction</category>
         
-        <category>Neural Network</category>
+        <category>neural-network</category>
         
-        <category>Machine Learning</category>
+        <category>machine-learning</category>
         
-        <category>Deep Learning</category>
+        <category>deep-learning</category>
         
-        <category>Keras</category>
+        <category>keras</category>
         
-        <category>LSTM</category>
+        <category>lstm</category>
         
         
         <category>machine-learning</category>
@@ -1257,9 +1257,9 @@ AR on small, medium, and large objects (ARs, ARm, and ARl) following the definit
         <link>https://doheelab.github.io/machine-learning/review/</link>
         <guid isPermaLink="true">https://doheelab.github.io/machine-learning/review/</guid>
         
-        <category>Object Detection</category>
+        <category>object-detection</category>
         
-        <category>Review</category>
+        <category>review</category>
         
         
         <category>machine-learning</category>
@@ -1540,11 +1540,11 @@ Stopping. Best iteration:
         <link>https://doheelab.github.io/machine-learning/first-post/</link>
         <guid isPermaLink="true">https://doheelab.github.io/machine-learning/first-post/</guid>
         
-        <category>Pandas</category>
+        <category>pandas</category>
         
-        <category>Gradient Boosting</category>
+        <category>gradient-boosting</category>
         
-        <category>Ensemble</category>
+        <category>ensemble</category>
         
         
         <category>machine-learning</category>

@@ -4,7 +4,7 @@ date: 2021-03-19 09:00:00 -0400
 author: Dohee Jung
 layout: posts
 categories: pandas
-tags: [Pandas, Json, Parsing, Preprocessing]
+tags: [pandas, json, parsing, preprocessing]
 ---
 
 

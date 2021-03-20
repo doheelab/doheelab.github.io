@@ -4,7 +4,7 @@ date: 2020-04-30 09:00:00 -0400
 author: Dohee Jung
 layout: posts
 categories: machine-learning
-tags: [Time Series, Neural Network, Machine Learning, Deep Learning, Keras, LSTM]
+tags: [time-series-prediction, neural-network, machine-learning, deep-learning, keras, lstm]
 ---
 
 블로그 글 "[How To Use Neural Networks to Forecast Multiple Steps of a Time Series](https://www.mariofilho.com/how-to-use-neural-networks-to-forecast-multiple-steps-of-time-series/)"을 참고하여 작성하였습니다.

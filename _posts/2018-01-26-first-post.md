@@ -4,7 +4,7 @@ date: 2019-11-19 09:00:00 -0400
 author: Dohee Jung
 layout: posts
 categories: machine-learning
-tags: [Pandas, Gradient Boosting, Ensemble]
+tags: [pandas, gradient-boosting, ensemble]
 ---
 
 ## Introduction

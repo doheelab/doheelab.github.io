@@ -4,7 +4,7 @@ date: 2020-04-30 09:00:00 -0400
 author: Dohee Jung
 layout: posts
 categories: machine-learning
-tags: [Time Series, Neural Network, Machine Learning, Deep Learning, Keras, LSTM, Stacked LSTM]
+tags: [time-series-prediction, neural-network, machine-learning, deep-learning, keras, lstm, stacked-lstm]
 ---
 
 ## 소개

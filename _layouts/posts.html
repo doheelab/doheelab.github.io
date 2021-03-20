@@ -2,9 +2,15 @@
 layout: archive
 ---
 
-{{ content }}{% if page.tags %} {% for tag in page.tags %}
-<span class="tag">{{ tag }}</span>
-{% endfor %} {% endif %}
+{{ content }}
+
+<div>
+  <br />
+  {% if page.tags != empty %} <b>Tags</b> {% for tag in page.tags %}
+  <a href="/tags#{{ tag | escape }}">{{tag}}</a>
+  {% if forloop.index != page.tags.size %},{% endif %} {% endfor %} {% endif %}
+  <br />
+</div>
 
 <ul class="taxonomy__index">
   {% assign postsInYear = site.posts | where_exp: "item", "item.hidden != true"
