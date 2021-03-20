@@ -1,0 +1,195 @@
+I"p'<p>이 글은 <code class="language-plaintext highlighter-rouge">git add</code>, <code class="language-plaintext highlighter-rouge">git commit</code>, <code class="language-plaintext highlighter-rouge">git push</code> 등 <code class="language-plaintext highlighter-rouge">git</code>의 기본 개념에 대한 이해를 전제로 합니다.</p>
+
+<h2 id="git-reset-revert를-사용하는-이유">git reset, revert를 사용하는 이유</h2>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">git reset</code>과 <code class="language-plaintext highlighter-rouge">git revert</code>는 <code class="language-plaintext highlighter-rouge">commit</code> 또는 <code class="language-plaintext highlighter-rouge">push</code>했던 내용을 이전 상태로 되돌리는 경우에 사용하는 명령어입니다.</p>
+  </li>
+  <li>
+    <p>로컬의 <code class="language-plaintext highlighter-rouge">commit</code> 내용을 변경하고자 할 때는 <code class="language-plaintext highlighter-rouge">reset</code>을 주로 사용하지만, 원격 저장소에 <code class="language-plaintext highlighter-rouge">push</code>한 결과를 되돌리고 싶을 때는 <code class="language-plaintext highlighter-rouge">revert</code>를 사용해야합니다.</p>
+  </li>
+</ul>
+
+<hr />
+
+<p><br /></p>
+
+<h2 id="git의-4가지-영역">git의 4가지 영역</h2>
+
+<div style="text-align:center"><img src="https://miro.medium.com/max/1000/1*Eced1qZ6rVz0npKAvJKJgw.png" /></div>
+
+<p>git은 <code class="language-plaintext highlighter-rouge">Working Directory</code>, <code class="language-plaintext highlighter-rouge">Repository</code>, <code class="language-plaintext highlighter-rouge">Index</code>, <code class="language-plaintext highlighter-rouge">Stash</code> 의 4개의 영역으로 구성되어 있습니다.</p>
+
+<h3 id="1-working-directory작업영역">1. Working Directory(작업영역)</h3>
+
+<p>프로젝트 디렉토리이며, 개발자가 직접 코드를 수정하는 공간을 의미합니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">.git</code>을 제외한 모든 영역에 해당합니다.</p>
+
+<h3 id="2-index-staging-area">2. Index (Staging Area)</h3>
+
+<p>Working Directory 에서 Repository로 정보가 저장되기 전 준비 영역입니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">.git/index</code> 파일로 관리됩니다.</p>
+
+<h3 id="3-repository저장소">3. Repository(저장소)</h3>
+
+<p>파일이나 폴더를 변경 이력별로 저장해두는 곳입니다.</p>
+
+<p><code class="language-plaintext highlighter-rouge">.git</code> 디렉토리 내에 존재합니다.</p>
+
+<p>Local, Remote Repository로 구분됩니다.</p>
+
+<h3 id="4-stash">4. Stash</h3>
+
+<p>임시적으로 작업사항을 저장해두고, 나중에 꺼내올 수 있는 영역입니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">영역</th>
+      <th style="text-align: center">역할</th>
+      <th style="text-align: center">위치</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">Working Directory</code></td>
+      <td style="text-align: center">프로젝트 디렉토리이며, 개발자가 직접 코드를 수정하는 공간을 의미합니다.</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">.</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">Index (Staging Area)</code></td>
+      <td style="text-align: center">Working Directory 에서 Repository로 정보가 저장되기 전 준비 영역입니다.</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">.git/index</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">Repository</code></td>
+      <td style="text-align: center">파일이나 폴더를 변경 이력별로 저장해두는 곳입니다.</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">.git</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">Stash</code></td>
+      <td style="text-align: center">임시적으로 작업사항을 저장해두고, 나중에 꺼내올 수 있는 영역입니다.</td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">.git/refs/stash</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p><br /></p>
+
+<h2 id="git-reset">git reset</h2>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git reset 커밋ID
+</code></pre></div></div>
+
+<p>과거 커밋 지점으로 이동하고, 이동된 이후의 커밋은 삭제하는 명령어 입니다. <code class="language-plaintext highlighter-rouge">git reset</code>에는 3가지 종류가 있습니다.</p>
+
+<h3 id="21-git-reset-hard">2.1 git reset –hard</h3>
+
+<p>해당 커밋ID의 상태로 이동하고, Working Directory와 Index영역 모두 초기화합니다.</p>
+
+<h3 id="22-git-reset-mixed">2.2 git reset –mixed</h3>
+
+<p>해당 커밋ID의 상태로 이동하고, Index영역은 초기화되고 Working Directory는 변경되지 않습니다.</p>
+
+<h3 id="23-git-reset-soft">2.3 git reset –soft</h3>
+
+<p>해당 커밋ID의 상태로 이동하고, Index영역과 Working Directory 모두 변경되지 않고, <code class="language-plaintext highlighter-rouge">commit</code>된 파일들을 staging area로 돌려놓습니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">명령어</th>
+      <th style="text-align: center">역할</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git reset --hard</code></td>
+      <td style="text-align: center">해당 커밋ID의 상태로 이동하고, Working Directory와 Index영역 모두 초기화합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git reset --mixed</code></td>
+      <td style="text-align: center">해당 커밋ID의 상태로 이동하고, Index영역은 초기화되고 Working Directory는 변경되지 않습니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git reset --soft</code></td>
+      <td style="text-align: center">해당 커밋ID의 상태로 이동하고, Index영역과 Working Directory 모두 변경되지 않습니다.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p><br /></p>
+
+<h2 id="유의사항">유의사항</h2>
+
+<p>원격 저장소에 push한 경우에는 <code class="language-plaintext highlighter-rouge">git reset</code>을 사용할 때 주의가 필요합니다.</p>
+
+<p>예를 들어, 커밋 A, B, C, D을 push한 후 <code class="language-plaintext highlighter-rouge">git reset</code>을 사용한다고 가정해봅시다.</p>
+
+<div style="text-align:center"><img src="https://media.vlpt.us/images/sonypark/post/1a2445b7-8ade-429a-a8eb-480004aa575a/image.png" /></div>
+
+<p>이 때 B 커밋으로 <code class="language-plaintext highlighter-rouge">reset --hard</code>를 하게 되면 C, D 커밋은 사라지게 되지만, 원격 저장소에는 C, D가 남아있습니다.</p>
+
+<div style="text-align:center"><img src="https://media.vlpt.us/images/sonypark/post/b9231368-309f-4cad-bcff-5fe93fe5f10a/image.png" /></div>
+
+<p>나 혼자 사용하는 브랜치라면 <code class="language-plaintext highlighter-rouge">push --force</code> 명령어로 원격 저장소에 올릴 수 있지만, 다른 팀원이 있는 경우 충돌이 발생합니다.</p>
+
+<p>이럴 때 사용할 수 있는 것이 <code class="language-plaintext highlighter-rouge">git revert</code>입니다.</p>
+
+<hr />
+
+<p><br /></p>
+
+<h1 id="git-revert">git revert</h1>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git revert 커밋ID
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">git revert 커밋ID</code>를 사용하면 이전 커밋 내역을 그대로 남겨둔 채 새로운 커밋을 생성합니다.</p>
+
+<p>앞선 상황에서, git revert를 사용한 결과는 다음과 같습니다.</p>
+
+<div style="text-align:center"><img src="https://media.vlpt.us/images/sonypark/post/34a1717b-93aa-4eac-96b1-5ccd0dddc900/image.png" /></div>
+
+<p>되돌릴 커밋이 여러개라면 범위를 주어서 여러개를 선택할 수도 있습니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>git revert 2664ce8..15413dc
+</code></pre></div></div>
+
+<hr />
+
+<h2 id="-tip-1-git-reset을-이용하여-git-add-git-commit-취소하기"><mark> TIP 1.</mark> git reset을 이용하여 git add, git commit 취소하기</h2>
+
+<h3 id="git-add-취소하기">git add 취소하기</h3>
+
+<ul>
+  <li>git reset 혹은 git reset HEAD (전체 파일 add 취소)</li>
+  <li>git reset HEAD 파일명 (특정 파일 add 취소)</li>
+</ul>
+
+<h3 id="git-commit-취소하기">git commit 취소하기</h3>
+
+<ul>
+  <li>git reset HEAD^ (가장 최신 커밋 1개 취소(삭제))</li>
+  <li>git reset HEAD^^(가장 최신 커밋 2개 취소(삭제))</li>
+  <li>꺽쇠 갯수에 따라 최신 커밋을 필요한만큼 순서대로 삭제</li>
+  <li>git reset HEAD~n (가장 최신 커밋 n개 취소(삭제))</li>
+</ul>
+
+<h2 id="참고자료">참고자료</h2>
+
+<p>[1] <a href="https://wikidocs.net/17165">Git 좀 잘 써보자</a></p>
+
+<p>[2] <a href="https://medium.com/nonamedeveloper/%EC%B4%88%EB%B3%B4%EC%9A%A9-git-%EB%90%98%EB%8F%8C%EB%A6%AC%EA%B8%B0-reset-revert-d572b4cb0bd5">[초보용] Git 되돌리기( Reset, Revert )</a></p>
+
+<p>[3] <a href="https://velog.io/@sonypark/git-reset-vs-git-revert-%EC%B0%A8%EC%9D%B4">git reset vs git revert 차이</a></p>
+
+<p>[4] <a href="https://codevang.tistory.com/227">git add 취소 / commit 취소하기</a></p>
+:ET

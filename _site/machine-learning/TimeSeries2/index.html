@@ -1,0 +1,845 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.22.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>케라스(Keras)로 Stacked LSTM 구현하기 - Dohee’s ML Lab</title>
+<meta name="description" content="소개">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Dohee's ML Lab">
+<meta property="og:title" content="케라스(Keras)로 Stacked LSTM 구현하기">
+<meta property="og:url" content="https://doheelab.github.io/machine-learning/TimeSeries2/">
+
+
+  <meta property="og:description" content="소개">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2020-04-30T22:00:00+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="https://doheelab.github.io/machine-learning/TimeSeries2/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Dohee",
+      "url": "https://doheelab.github.io/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Dohee's ML Lab Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--posts">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Dohee's ML Lab
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">케라스(Keras)로 Stacked LSTM 구현하기</h1>
+    
+    <h2 id="소개">소개</h2>
+
+<p>이 글에서 다룰 내용은 Keras를 활용하여 Stacked LSTM 구하고 time series prediction task에 적용해보는 것입니다.</p>
+
+<h2 id="stacked-lstm을-사용하는-이유">Stacked LSTM을 사용하는 이유</h2>
+
+<p>Stacked LSTM은 hidden layer에 여러개의 LSTM 층을 쌓아서, 여러개의 memory cell을 이용할 수 있게 합니다.</p>
+
+<p>일반적으로 neural network 에서 모델의 성능을 향상시키기 위해, hidden lyaer의 노드의 갯수를 과도하게 증가시키는 것보다는 여러개의 hidden layer를 이용하는 것이 더욱 효과적입니다.</p>
+
+<p>Stacked LSTM은 기존의 LSTM이 더 복잡한 task를 해결할 수 있도록, 모델의 복잡도를 높이는 방법 중 하나라고 생각하시면 됩니다.</p>
+
+<!-- ![Stacked Long Short-Term Memory Archiecture](https://3qeqpr26caki16dnhd19sv6by6v-wpengine.netdna-ssl.com/wp-content/uploads/2017/07/architecture_stacked_lstm.png) -->
+
+<div style="text-align:center"><img src="https://3qeqpr26caki16dnhd19sv6by6v-wpengine.netdna-ssl.com/wp-content/uploads/2017/07/architecture_stacked_lstm.png" /></div>
+
+<div align="center">
+  <i>Stacked Long Short-Term Memory Archiecture 1</i>
+</div>
+<p><br /></p>
+<div style="text-align:center"><img src="https://user-images.githubusercontent.com/57972646/101423085-945e6500-393b-11eb-90de-f84a9f37ee06.png" /></div>
+
+<div align="center">
+  <i>Stacked Long Short-Term Memory Archiecture 2</i>
+</div>
+
+<p><br /></p>
+
+<h2 id="데이터-다운로드">데이터 다운로드</h2>
+
+<p><a href="https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly">Sales_Transactions_Dataset_Weekly Data Set</a></p>
+
+<p>800개 여개의 상품의 52주 동안의 주별 구매량 데이터를 통해, 구매량을 예측하는 모델을 만들어보겠습니다.</p>
+
+<h2 id="데이터-불러오기">데이터 불러오기</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">"../input/Sales_Transactions_Dataset_Weekly.csv"</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="nb">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s">"Product|W"</span><span class="p">).</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">data</span><span class="p">[</span><span class="s">'Product_Code_NUM'</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">'Product_Code'</span><span class="p">].</span><span class="nb">str</span><span class="p">.</span><span class="n">extract</span><span class="p">(</span><span class="s">"(\d+)"</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">data</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(811, 54)
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/57972646/80658133-3d003880-8ac0-11ea-9f7a-12ac0856cf88.png" alt="image" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"Max Product_Code: {} - Unique Product_Code: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">'Product_Code_NUM'</span><span class="p">].</span><span class="nb">max</span><span class="p">(),</span> <span class="n">data</span><span class="p">[</span><span class="s">'Product_Code_NUM'</span><span class="p">].</span><span class="n">nunique</span><span class="p">()))</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Max</span> <span class="n">Product_Code</span><span class="p">:</span> <span class="mi">819</span> <span class="o">-</span> <span class="n">Unique</span> <span class="n">Product_Code</span><span class="p">:</span> <span class="mi">811</span>
+</code></pre></div></div>
+
+<p>상품코드의 최대값은 819이며 unique한 상품코드의 갯수는 811개 입니다.</p>
+
+<h2 id="데이터-전처리">데이터 전처리</h2>
+
+<p>향후 3주간의 구매량을 예측하기 위해, 입력값으로 이전 7주간의 데이터를 사용할 것입니다.</p>
+
+<p>각 데이터 별로 input column의 갯수는 7개이며, target column의 갯수는 3개입니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">keras.utils.np_utils</span> <span class="kn">import</span> <span class="n">to_categorical</span>
+
+<span class="n">X_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">Y_train</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">X_test</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">Y_test</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">50</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">row</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">w</span><span class="o">-</span><span class="mi">7</span><span class="p">:</span><span class="n">w</span><span class="p">].</span><span class="n">values</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">row</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">w</span><span class="p">:</span><span class="n">w</span><span class="o">+</span><span class="mi">3</span><span class="p">].</span><span class="n">values</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">w</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">:</span>
+            <span class="n">X_train</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">Y_train</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">X_test</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">Y_test</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">Y_train</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">Y_train</span><span class="p">)</span>
+
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">Y_test</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">Y_test</span><span class="p">)</span>
+
+<span class="n">X_train</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">X_test</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">.</span><span class="n">shape</span>
+
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">((</span><span class="mi">17842</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="p">(</span><span class="mi">16220</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="p">(</span><span class="mi">17842</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">16220</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">sklearn</code>의 <code class="language-plaintext highlighter-rouge">RobustScaler</code>를 사용하면 중앙값(median)을 0으로, IQR(interquarntile range)가 1이 되도록 변환할 수 있습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">RobustScaler</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">RobustScaler</span><span class="p">()</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="모델-정의하기">모델 정의하기</h2>
+
+<p>2개의 LSTM을 stack하여 네트워크를 정의하였습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Sequential</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">SimpleRNN</span><span class="p">,</span> <span class="n">Activation</span><span class="p">,</span> <span class="n">LSTM</span>
+<span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">optimizers</span>
+<span class="kn">from</span> <span class="nn">keras.wrappers.scikit_learn</span> <span class="kn">import</span> <span class="n">KerasClassifier</span>
+<span class="kn">from</span> <span class="nn">keras.callbacks</span> <span class="kn">import</span> <span class="n">LearningRateScheduler</span>
+
+<span class="k">def</span> <span class="nf">deep_lstm</span><span class="p">():</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">()</span>
+    <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">LSTM</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">input_shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="n">return_sequences</span> <span class="o">=</span> <span class="bp">True</span><span class="p">))</span>
+    <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">LSTM</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">return_sequences</span> <span class="o">=</span> <span class="bp">False</span><span class="p">))</span>
+    <span class="n">model</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">Dense</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+    <span class="c1">#model.add(Activation('softmax'))
+</span>
+    <span class="n">adam</span> <span class="o">=</span> <span class="n">optimizers</span><span class="p">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">lr</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">)</span>
+    <span class="n">model</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">loss</span> <span class="o">=</span> <span class="s">'mse'</span><span class="p">,</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">adam</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">model</span>
+</code></pre></div></div>
+
+<h1 id="학습하기">학습하기</h1>
+
+<p>Stacked LSTM의 Input은 3차원(samples, time steps, and features)이어야 하므로 Input의 차원을 하나 증가시켜줍니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">X_train</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>학습을 시작합니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">model</span> <span class="o">=</span> <span class="n">deep_lstm</span><span class="p">()</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">scheduler</span><span class="p">(</span><span class="n">epoch</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">epoch</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.01</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.001</span>
+
+<span class="n">callback</span> <span class="o">=</span> <span class="n">LearningRateScheduler</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
+
+<span class="n">model</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">callback</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Epoch 1/20
+17842/17842 [==============================] - 2s 108us/step - loss: 102.4639
+Epoch 2/20
+17842/17842 [==============================] - 2s 87us/step - loss: 26.5516
+Epoch 3/20
+17842/17842 [==============================] - 2s 88us/step - loss: 16.9195
+Epoch 4/20
+17842/17842 [==============================] - 2s 90us/step - loss: 15.6632
+Epoch 5/20
+17842/17842 [==============================] - 2s 87us/step - loss: 15.3605
+Epoch 6/20
+17842/17842 [==============================] - 2s 87us/step - loss: 15.3157
+Epoch 7/20
+17842/17842 [==============================] - 2s 87us/step - loss: 15.2968
+Epoch 8/20
+17842/17842 [==============================] - 2s 87us/step - loss: 15.2612
+Epoch 9/20
+17842/17842 [==============================] - 2s 87us/step - loss: 15.3096
+Epoch 10/20
+17842/17842 [==============================] - 2s 93us/step - loss: 15.2477
+Epoch 11/20
+17842/17842 [==============================] - 2s 89us/step - loss: 15.0871
+Epoch 12/20
+17842/17842 [==============================] - 2s 90us/step - loss: 15.0195
+Epoch 13/20
+17842/17842 [==============================] - 2s 89us/step - loss: 15.0190
+Epoch 14/20
+17842/17842 [==============================] - 2s 90us/step - loss: 15.0101
+Epoch 15/20
+17842/17842 [==============================] - 2s 92us/step - loss: 15.0177
+Epoch 16/20
+17842/17842 [==============================] - 2s 91us/step - loss: 15.0066
+Epoch 17/20
+17842/17842 [==============================] - 2s 90us/step - loss: 15.0107
+Epoch 18/20
+17842/17842 [==============================] - 2s 91us/step - loss: 15.0103
+Epoch 19/20
+17842/17842 [==============================] - 2s 92us/step - loss: 15.0063
+Epoch 20/20
+17842/17842 [==============================] - 2s 90us/step - loss: 15.0054
+</code></pre></div></div>
+
+<h2 id="결과-확인하기">결과 확인하기</h2>
+
+<p>1주, 2주, 3주 후 예측값과 실제값 사이의 에러를 계산하였습니다.
+더 먼 미래를 예측할 수록 에러가 커지는 것을 확인할 수 있습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">p</span> <span class="o">-</span> <span class="n">Y_test</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)).</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>array([2.13613641, 2.16403327, 2.20673458])
+</code></pre></div></div>
+
+<h2 id="결과-시각화하기">결과 시각화하기</h2>
+
+<p><code class="language-plaintext highlighter-rouge">matplotlib</code>을 사용하여, 결과를 시각화하였습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+<span class="n">sns</span><span class="p">.</span><span class="nb">set</span><span class="p">()</span>
+<span class="n">tips</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s">"tips"</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span> <span class="n">scaler</span><span class="p">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">[:</span><span class="mi">1</span><span class="p">,:])[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">7</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">np</span><span class="p">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">]),</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">np</span><span class="p">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">]),</span><span class="n">Y_test</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">([</span><span class="s">'Data'</span><span class="p">,</span> <span class="s">'Prediction'</span><span class="p">,</span> <span class="s">'True'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Time Series Prediction"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span> <span class="n">scaler</span><span class="p">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,:])[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">7</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">np</span><span class="p">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="mi">11</span><span class="p">]),</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">np</span><span class="p">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="mi">11</span><span class="p">]),</span><span class="n">Y_test</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">([</span><span class="s">'Data'</span><span class="p">,</span> <span class="s">'Prediction'</span><span class="p">,</span> <span class="s">'True'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Time Series Prediction"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/57972646/80673859-510d5f80-8aeb-11ea-839a-5b247163c15d.png" alt="image" /></p>
+
+<div align="center">
+  <i>0일에서 </i>
+</div>
+
+<p><img src="https://user-images.githubusercontent.com/57972646/80673887-5bc7f480-8aeb-11ea-82d9-9130b7fc97f5.png" alt="image" /></p>
+
+<p>(참고자료)</p>
+
+<p>[1] “<a href="https://machinelearningmastery.com/stacked-long-short-term-memory-networks/">Stacked Long Short-Term Memory Networks</a>”</p>
+
+<p>[2] <a href="https://buomsoo-kim.github.io/keras/2019/07/29/Easy-deep-learning-with-Keras-20.md/"># 케라스와 함께하는 쉬운 딥러닝 (20) - 순환형 신경망(RNN) 모델 만들기 3</a></p>
+
+<p>[3] <a href="https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly">Sales_Transactions_Dataset_Weekly Data Set</a></p>
+  
+<span class="tag">Time Series</span>
+
+<span class="tag">Neural Network</span>
+
+<span class="tag">Machine Learning</span>
+
+<span class="tag">Deep Learning</span>
+
+<span class="tag">Keras</span>
+
+<span class="tag">LSTM</span>
+
+<span class="tag">Stacked LSTM</span>
+ 
+
+<ul class="taxonomy__index">
+   
+  <li>
+    <a href="#2021">
+      <strong>2021</strong>
+      <span class="taxonomy__count">4</span>
+    </a>
+  </li>
+  
+  <li>
+    <a href="#2020">
+      <strong>2020</strong>
+      <span class="taxonomy__count">2</span>
+    </a>
+  </li>
+  
+  <li>
+    <a href="#2019">
+      <strong>2019</strong>
+      <span class="taxonomy__count">2</span>
+    </a>
+  </li>
+  
+</ul>
+
+  
+<section id="2021" class="taxonomy__section">
+  <h2 class="archive__subtitle">2021</h2>
+  <div class="entries-list">
+     
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/pandas/parse_json/" rel="permalink">pandas를 이용하여 json 데이터 파싱하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">이 글에서는 pandas를 이용하여 json 데이터를 분석하기 좋은 형태로 변환하는 방법에 대해 설명합니다.
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/motivation/Seungineer1/" rel="permalink">비전공자로 개발자 커리어를 시작하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">최근 개발자에 대한 수요가 많아지고, 대우가 좋아지면서 대학교에서 CS를 전공하지 않은 비전공자 개발자들이 많아지고 있습니다.
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/github/gitStash/" rel="permalink">git stash 쉽게 이해하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">git stash를 사용하는 이유
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/github/gitReset/" rel="permalink">git reset과 git revert 쉽게 이해하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">이 글은 git add, git commit, git push 등 git의 기본 개념에 대한 이해를 전제로 합니다.
+</p>
+  </article>
+</div>
+ 
+  </div>
+  <a href="#page-title" class="back-to-top"
+    >Back to Top
+    &uarr;</a
+  >
+</section>
+
+<section id="2020" class="taxonomy__section">
+  <h2 class="archive__subtitle">2020</h2>
+  <div class="entries-list">
+     
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/machine-learning/TimeSeries2/" rel="permalink">케라스(Keras)로 Stacked LSTM 구현하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          3 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">소개
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/machine-learning/TimeSeries/" rel="permalink">뉴럴 네트워크로 시계열 데이터 예측하기(time series prediction)
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          3 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">블로그 글 “How To Use Neural Networks to Forecast Multiple Steps of a Time Series“을 참고하여 작성하였습니다.
+</p>
+  </article>
+</div>
+ 
+  </div>
+  <a href="#page-title" class="back-to-top"
+    >Back to Top
+    &uarr;</a
+  >
+</section>
+
+<section id="2019" class="taxonomy__section">
+  <h2 class="archive__subtitle">2019</h2>
+  <div class="entries-list">
+     
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/machine-learning/review/" rel="permalink">Feature Pyramid Networks for Object Detection
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          4 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">source: Feature Pyramid Networks for Object Detection (paper link)
+
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/machine-learning/first-post/" rel="permalink">Categorical variable encoding using aggregated mean and std
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          5 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">Introduction
+Preprocessing cartegorical features is no easy task. The most basic technique would probably be one-hot-encoding method. However, one-hot-encodi...</p>
+  </article>
+</div>
+ 
+  </div>
+  <a href="#page-title" class="back-to-top"
+    >Back to Top
+    &uarr;</a
+  >
+</section>
+
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2021 Dohee. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

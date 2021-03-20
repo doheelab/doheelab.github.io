@@ -1,0 +1,5 @@
+I"N<h2 id="introduction">Introduction</h2>
+<p>Preprocessing cartegorical features is no easy task. The most basic technique would probably be one-hot-encoding method. However, one-hot-encoding is not efficient whenever the number of features is large. <br /> <br />
+In this article, We will learn how to handle many categorical features effectively even though the number of features is large. This technique was used by the winner of Kaggle’s “IEEE-CIS Fraud Detection” competition and can be found at <a href="https://www.kaggle.com/cdeotte/xgb-fraud-with-magic-0-9600">here</a>.</p>
+
+:ET
