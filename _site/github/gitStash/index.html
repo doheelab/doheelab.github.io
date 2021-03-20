@@ -1,0 +1,661 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.22.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>git stash 쉽게 이해하기 - Dohee’s ML Lab</title>
+<meta name="description" content="git stash를 사용하는 이유">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Dohee's ML Lab">
+<meta property="og:title" content="git stash 쉽게 이해하기">
+<meta property="og:url" content="https://doheelab.github.io/github/gitStash/">
+
+
+  <meta property="og:description" content="git stash를 사용하는 이유">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2021-03-17T22:00:00+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="https://doheelab.github.io/github/gitStash/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Dohee",
+      "url": "https://doheelab.github.io/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Dohee's ML Lab Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--posts">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Dohee's ML Lab
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">git stash 쉽게 이해하기</h1>
+    
+    <h2 id="git-stash를-사용하는-이유">git stash를 사용하는 이유</h2>
+
+<p>한 브랜치에서 작업을 하다가 다른 브랜치로 checkout 해야하는 경우가 있습니다.</p>
+
+<p>이때 <code class="language-plaintext highlighter-rouge">git checkout [브랜치]</code>를 사용하면 다음과 같은 오류를 만나게 됩니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rror: Your local changes to the following files would be overwritten by checkout:
+	_posts/2021-03-17-gitStash.md
+Please, commit your changes or stash them before you can switch branches.
+</code></pre></div></div>
+
+<p>즉, 현재 로컬의 상태에 변화가 있다면 브랜치를 변경하기 전에 반드시 <code class="language-plaintext highlighter-rouge">commit</code> 혹은 <code class="language-plaintext highlighter-rouge">stash</code>를 사용해야 합니다.
+<code class="language-plaintext highlighter-rouge">git commit</code> 후에 브랜치를 변경할 수도 있지만, <code class="language-plaintext highlighter-rouge">commit</code>하지 않고 나중에 다시 돌아와서 작업을 하기 위해서 <code class="language-plaintext highlighter-rouge">git stash</code>를 사용하면, <code class="language-plaintext highlighter-rouge">git stash apply</code> 혹은 <code class="language-plaintext highlighter-rouge">git stash pop</code>를 통해 나중에 불러올 수 있습니다.</p>
+
+<p>또한 이렇게 저장한 내용을 다른 브랜치에 적용하는 것도 가능합니다. (잘못된 브랜치에서 작업 시 유용하게 사용)</p>
+
+<hr />
+
+<p><br /></p>
+
+<h2 id="git-stash-필수-명령어">git stash 필수 명령어</h2>
+
+<p>다음은 <code class="language-plaintext highlighter-rouge">git stash</code>를 사용하기 위한 필수 명령어입니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">명령어</th>
+      <th style="text-align: center">역할</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash (save)</code></td>
+      <td style="text-align: center">작업 내용을 stash 공간에 안전하게 보관합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash list</code></td>
+      <td style="text-align: center">보관 중인 stash 목록을 조회합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash apply</code></td>
+      <td style="text-align: center">stash에 저장된 내용을 현재 브랜치에 적용합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash drop</code></td>
+      <td style="text-align: center">stash에 저장된 내용을 삭제합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash pop</code></td>
+      <td style="text-align: center">stash에 저장된 내용을 현재 브랜치에 적용한 후, 삭제합니다. (<code class="language-plaintext highlighter-rouge">apply</code> + <code class="language-plaintext highlighter-rouge">pop</code>)</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p><br /></p>
+
+<h3 id="tip-git-stash-apply-index"><mark>TIP</mark> git stash apply –index</h3>
+
+<p><code class="language-plaintext highlighter-rouge">–index</code> 옵션을 주면 Staged 상태까지 그대로 복원합니다.</p>
+
+<h2 id="참고자료">참고자료</h2>
+
+<p>[1] <a href="https://gmlwjd9405.github.io/2018/05/18/git-stash.html">[Git] git stash 명령어 사용하기</a></p>
+
+<p>[2] <a href="https://mylko72.gitbooks.io/git/content/_stash.html">스테이시(stash)에 안전하게 보관하기</a></p>
+
+
+<div>
+  <br />
+   <b>Tags</b> 
+  <a href="/tags#github">github</a>
+  , 
+  <a href="/tags#git-stash">git-stash</a>
+    
+  <br />
+</div>
+
+<ul class="taxonomy__index">
+   
+  <li>
+    <a href="#2021">
+      <strong>2021</strong>
+      <span class="taxonomy__count">4</span>
+    </a>
+  </li>
+  
+  <li>
+    <a href="#2020">
+      <strong>2020</strong>
+      <span class="taxonomy__count">2</span>
+    </a>
+  </li>
+  
+  <li>
+    <a href="#2019">
+      <strong>2019</strong>
+      <span class="taxonomy__count">2</span>
+    </a>
+  </li>
+  
+</ul>
+
+  
+<section id="2021" class="taxonomy__section">
+  <h2 class="archive__subtitle">2021</h2>
+  <div class="entries-list">
+     
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/pandas/parse_json/" rel="permalink">pandas를 이용하여 json 데이터 파싱하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">이 글에서는 pandas를 이용하여 json 데이터를 분석하기 좋은 형태로 변환하는 방법에 대해 설명합니다.
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/motivation/Seungineer1/" rel="permalink">비전공자로 개발자 커리어를 시작하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">최근 개발자에 대한 수요가 많아지고, 대우가 좋아지면서 대학교에서 CS를 전공하지 않은 비전공자 개발자들이 많아지고 있습니다.
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/github/gitStash/" rel="permalink">git stash 쉽게 이해하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          less than 1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">git stash를 사용하는 이유
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/github/gitReset/" rel="permalink">git reset과 git revert 쉽게 이해하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">이 글은 git add, git commit, git push 등 git의 기본 개념에 대한 이해를 전제로 합니다.
+</p>
+  </article>
+</div>
+ 
+  </div>
+  <a href="#page-title" class="back-to-top"
+    >Back to Top
+    &uarr;</a
+  >
+</section>
+
+<section id="2020" class="taxonomy__section">
+  <h2 class="archive__subtitle">2020</h2>
+  <div class="entries-list">
+     
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/machine-learning/TimeSeries2/" rel="permalink">케라스(Keras)로 Stacked LSTM 구현하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          3 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">소개
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/machine-learning/TimeSeries/" rel="permalink">뉴럴 네트워크로 시계열 데이터 예측하기(time series prediction)
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          3 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">블로그 글 “How To Use Neural Networks to Forecast Multiple Steps of a Time Series“을 참고하여 작성하였습니다.
+</p>
+  </article>
+</div>
+ 
+  </div>
+  <a href="#page-title" class="back-to-top"
+    >Back to Top
+    &uarr;</a
+  >
+</section>
+
+<section id="2019" class="taxonomy__section">
+  <h2 class="archive__subtitle">2019</h2>
+  <div class="entries-list">
+     
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/machine-learning/review/" rel="permalink">Feature Pyramid Networks for Object Detection
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          4 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">source: Feature Pyramid Networks for Object Detection (paper link)
+
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/machine-learning/first-post/" rel="permalink">Categorical variable encoding using aggregated mean and std
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          5 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">Introduction
+Preprocessing cartegorical features is no easy task. The most basic technique would probably be one-hot-encoding method. However, one-hot-encodi...</p>
+  </article>
+</div>
+ 
+  </div>
+  <a href="#page-title" class="back-to-top"
+    >Back to Top
+    &uarr;</a
+  >
+</section>
+
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2021 Dohee. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,795 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.22.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>뉴럴 네트워크로 시계열 데이터 예측하기(time series prediction) - Dohee’s ML Lab</title>
+<meta name="description" content="블로그 글 “How To Use Neural Networks to Forecast Multiple Steps of a Time Series“을 참고하여 작성하였습니다.">
+
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Dohee's ML Lab">
+<meta property="og:title" content="뉴럴 네트워크로 시계열 데이터 예측하기(time series prediction)">
+<meta property="og:url" content="https://doheelab.github.io/machine-learning/TimeSeries/">
+
+
+  <meta property="og:description" content="블로그 글 “How To Use Neural Networks to Forecast Multiple Steps of a Time Series“을 참고하여 작성하였습니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2020-04-30T22:00:00+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="https://doheelab.github.io/machine-learning/TimeSeries/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Dohee",
+      "url": "https://doheelab.github.io/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Dohee's ML Lab Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+  </head>
+
+  <body class="layout--posts">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Dohee's ML Lab
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+
+  <div class="archive">
+    
+      <h1 id="page-title" class="page__title">뉴럴 네트워크로 시계열 데이터 예측하기(time series prediction)</h1>
+    
+    <p>블로그 글 “<a href="https://www.mariofilho.com/how-to-use-neural-networks-to-forecast-multiple-steps-of-time-series/">How To Use Neural Networks to Forecast Multiple Steps of a Time Series</a>“을 참고하여 작성하였습니다.</p>
+
+<p>이 글에서 다룰 내용은 시계열 데이터(상품 구매량 데이터)를 활용하여 현재로부터 1, 2, 3주 미래의 구매량을 예측하는 것입니다.</p>
+
+<h2 id="데이터-다운로드">데이터 다운로드</h2>
+<p>https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly</p>
+
+<p>800개가 넘는 상품에 대하여 52주 동안의 주별 구매량 데이터를 제공합니다.</p>
+
+<h2 id="데이터-불러오기">데이터 불러오기</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">"../input/Sales_Transactions_Dataset_Weekly.csv"</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="nb">filter</span><span class="p">(</span><span class="n">regex</span><span class="o">=</span><span class="s">"Product|W"</span><span class="p">).</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">data</span><span class="p">[</span><span class="s">'Product_Code_NUM'</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">'Product_Code'</span><span class="p">].</span><span class="nb">str</span><span class="p">.</span><span class="n">extract</span><span class="p">(</span><span class="s">"(\d+)"</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">data</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div></div>
+<p>(811, 54)</p>
+
+<p><img src="https://user-images.githubusercontent.com/57972646/80658133-3d003880-8ac0-11ea-9f7a-12ac0856cf88.png" alt="image" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"Max Product_Code: {} - Unique Product_Code: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">'Product_Code_NUM'</span><span class="p">].</span><span class="nb">max</span><span class="p">(),</span> <span class="n">data</span><span class="p">[</span><span class="s">'Product_Code_NUM'</span><span class="p">].</span><span class="n">nunique</span><span class="p">()))</span>
+</code></pre></div></div>
+<p>Max Product_Code: 819 - Unique Product_Code: 811</p>
+
+<p>상품코드의 최대값은 819이며 유니크한 상품코드의 갯수는 811개 입니다.</p>
+
+<h2 id="데이터-전처리">데이터 전처리</h2>
+
+<p>향후 3주간의 구매량을 예측하기 위해 입력값으로 이전 7주간의 데이터와 상품 코드를 사용하였습니다.</p>
+
+<p>상품 코드를 수치화 하기 위해 to_categorical 함수를 활용했습니다.</p>
+
+<p>각 데이터 별로 input column의 갯수는 827개(7+820)이며, label column의 갯수는 3개입니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">keras.utils.np_utils</span> <span class="kn">import</span> <span class="n">to_categorical</span>
+
+<span class="n">X_train</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">Y_train</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="n">X_test</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">Y_test</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">50</span><span class="p">):</span>
+        <span class="n">product_code_num</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s">'Product_Code_NUM'</span><span class="p">]</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">row</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">w</span><span class="o">-</span><span class="mi">7</span><span class="p">:</span><span class="n">w</span><span class="p">].</span><span class="n">values</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">row</span><span class="p">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">w</span><span class="p">:</span><span class="n">w</span><span class="o">+</span><span class="mi">3</span><span class="p">].</span><span class="n">values</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+        <span class="n">product_code_num_ohe</span> <span class="o">=</span> <span class="n">to_categorical</span><span class="p">(</span><span class="n">product_code_num</span><span class="p">,</span> <span class="n">num_classes</span><span class="o">=</span><span class="mi">820</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">product_code_num_ohe</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">w</span> <span class="o">&lt;</span> <span class="mi">30</span><span class="p">:</span>
+            <span class="n">X_train</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">Y_train</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">X_test</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="n">Y_test</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">Y_train</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">Y_train</span><span class="p">)</span>
+
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">Y_test</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">(</span><span class="n">Y_test</span><span class="p">)</span>
+
+<span class="n">X_train</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">X_test</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">.</span><span class="n">shape</span>
+
+</code></pre></div></div>
+<p>((17842, 827), (16220, 827), (17842, 3), (16220, 3))</p>
+
+<blockquote>
+  <p>RobustScaler</p>
+</blockquote>
+
+<p>sklearn의 RobustScaler(중앙값(median)이 0, IQR(interquartile range)이 1이 되도록 변환)을 사용하여 전처리를 했습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">RobustScaler</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">RobustScaler</span><span class="p">()</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+</code></pre></div></div>
+<blockquote>
+  <p>RobustScaler 전처리 전, 후 비교</p>
+</blockquote>
+
+<p><img src="https://user-images.githubusercontent.com/57972646/80659105-ed6f3c00-8ac2-11ea-9644-92fffbf22852.png" alt="image" /></p>
+
+<h2 id="학습하기">학습하기</h2>
+
+<p>hidden layer가 1개인 뉴럴 네트워크를 정의하여 학습 하였습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">keras</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Input</span><span class="p">,</span> <span class="n">Dropout</span>
+
+<span class="n">inp</span> <span class="o">=</span> <span class="n">Input</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">827</span><span class="p">,))</span>
+<span class="n">hid1</span> <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'relu'</span><span class="p">)(</span><span class="n">inp</span><span class="p">)</span>
+<span class="n">out</span>  <span class="o">=</span> <span class="n">Dense</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s">'linear'</span><span class="p">)(</span><span class="n">hid1</span><span class="p">)</span>
+
+<span class="n">mdl</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">inputs</span><span class="o">=</span><span class="n">inp</span><span class="p">,</span> <span class="n">outputs</span><span class="o">=</span><span class="n">out</span><span class="p">)</span>
+<span class="n">mdl</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="s">'mse'</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s">'adam'</span><span class="p">)</span>
+
+<span class="n">mdl</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">Y_train</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="p">[</span><span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">],</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+</code></pre></div></div>
+<p>(Output)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Train on 17842 samples, validate on 16220 samples
+Epoch 1/20
+17842/17842 [==============================] - 1s 42us/step - loss: 52.7907 - val_loss: 12.2801
+Epoch 2/20
+17842/17842 [==============================] - 1s 36us/step - loss: 15.7185 - val_loss: 12.5315
+Epoch 3/20
+17842/17842 [==============================] - 1s 37us/step - loss: 15.6272 - val_loss: 12.1437
+Epoch 4/20
+17842/17842 [==============================] - 1s 36us/step - loss: 15.5493 - val_loss: 12.1424
+Epoch 5/20
+17842/17842 [==============================] - 1s 36us/step - loss: 15.5250 - val_loss: 12.0493
+Epoch 6/20
+17842/17842 [==============================] - 1s 36us/step - loss: 15.5047 - val_loss: 12.2614
+Epoch 7/20
+17842/17842 [==============================] - 1s 36us/step - loss: 15.4791 - val_loss: 12.1326
+Epoch 8/20
+17842/17842 [==============================] - 1s 36us/step - loss: 15.4379 - val_loss: 12.1715
+Epoch 9/20
+17842/17842 [==============================] - 1s 36us/step - loss: 15.4293 - val_loss: 12.4249
+Epoch 10/20
+17842/17842 [==============================] - 1s 36us/step - loss: 15.3508 - val_loss: 11.9541
+Epoch 11/20
+17842/17842 [==============================] - 1s 37us/step - loss: 15.3012 - val_loss: 11.9968
+Epoch 12/20
+17842/17842 [==============================] - 1s 37us/step - loss: 15.2420 - val_loss: 12.4801
+Epoch 13/20
+17842/17842 [==============================] - 1s 36us/step - loss: 15.1709 - val_loss: 12.3623
+Epoch 14/20
+17842/17842 [==============================] - 1s 36us/step - loss: 15.0996 - val_loss: 12.4415
+Epoch 15/20
+17842/17842 [==============================] - 1s 36us/step - loss: 14.9894 - val_loss: 12.2338
+Epoch 16/20
+17842/17842 [==============================] - 1s 36us/step - loss: 14.8829 - val_loss: 12.4625
+Epoch 17/20
+17842/17842 [==============================] - 1s 36us/step - loss: 14.8321 - val_loss: 11.7942
+Epoch 18/20
+17842/17842 [==============================] - 1s 36us/step - loss: 14.7513 - val_loss: 12.0298
+Epoch 19/20
+17842/17842 [==============================] - 1s 37us/step - loss: 14.6618 - val_loss: 11.8049
+Epoch 20/20
+17842/17842 [==============================] - 1s 37us/step - loss: 14.5454 - val_loss: 12.1301
+</code></pre></div></div>
+
+<h2 id="결과-확인하기">결과 확인하기</h2>
+<p>1주, 2주, 3주 후 예측값과 실제값 사이의 에러를 계산하였습니다.</p>
+
+<p>더 먼 미래를 예측할 수록 에러가 증가하는 것을 확인할 수 있습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p</span> <span class="o">=</span> <span class="n">mdl</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(((</span><span class="n">np</span><span class="p">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="p">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">Y_test</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)).</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div></div>
+<p>array([2.10016761, 2.10686022, 2.16465018])</p>
+
+<blockquote>
+  <p>시각화</p>
+</blockquote>
+
+<p>Seaborn과 Pyplot을 이용하여 시각화 하였습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+<span class="n">sns</span><span class="p">.</span><span class="nb">set</span><span class="p">()</span>
+<span class="n">tips</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s">"tips"</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span> <span class="n">scaler</span><span class="p">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">[:</span><span class="mi">1</span><span class="p">,:])[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">7</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">np</span><span class="p">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">]),</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">np</span><span class="p">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="mi">5</span><span class="p">]),</span><span class="n">Y_test</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">([</span><span class="s">'Data'</span><span class="p">,</span> <span class="s">'Prediction'</span><span class="p">,</span> <span class="s">'True'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Time Series Prediction"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span> <span class="n">scaler</span><span class="p">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,:])[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">7</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">np</span><span class="p">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="mi">11</span><span class="p">]),</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">),</span><span class="n">np</span><span class="p">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="mi">11</span><span class="p">]),</span><span class="n">Y_test</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">([</span><span class="s">'Data'</span><span class="p">,</span> <span class="s">'Prediction'</span><span class="p">,</span> <span class="s">'True'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Time Series Prediction"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/57972646/80660994-56a57e00-8ac8-11ea-85ac-051a34094497.png" alt="image" /></p>
+
+<p><img src="https://user-images.githubusercontent.com/57972646/80661043-73da4c80-8ac8-11ea-8c78-e1b112c941c9.png" alt="image" /></p>
+
+
+<div>
+  <br />
+   <b>Tags</b> 
+  <a href="/tags#time-series-prediction">time-series-prediction</a>
+  , 
+  <a href="/tags#neural-network">neural-network</a>
+  , 
+  <a href="/tags#machine-learning">machine-learning</a>
+  , 
+  <a href="/tags#deep-learning">deep-learning</a>
+  , 
+  <a href="/tags#keras">keras</a>
+  , 
+  <a href="/tags#lstm">lstm</a>
+    
+  <br />
+</div>
+
+<ul class="taxonomy__index">
+   
+  <li>
+    <a href="#2021">
+      <strong>2021</strong>
+      <span class="taxonomy__count">4</span>
+    </a>
+  </li>
+  
+  <li>
+    <a href="#2020">
+      <strong>2020</strong>
+      <span class="taxonomy__count">2</span>
+    </a>
+  </li>
+  
+  <li>
+    <a href="#2019">
+      <strong>2019</strong>
+      <span class="taxonomy__count">2</span>
+    </a>
+  </li>
+  
+</ul>
+
+  
+<section id="2021" class="taxonomy__section">
+  <h2 class="archive__subtitle">2021</h2>
+  <div class="entries-list">
+     
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/pandas/parse_json/" rel="permalink">pandas를 이용하여 json 데이터 파싱하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">이 글에서는 pandas를 이용하여 json 데이터를 분석하기 좋은 형태로 변환하는 방법에 대해 설명합니다.
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/motivation/Seungineer1/" rel="permalink">비전공자로 개발자 커리어를 시작하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">최근 개발자에 대한 수요가 많아지고, 대우가 좋아지면서 대학교에서 CS를 전공하지 않은 비전공자 개발자들이 많아지고 있습니다.
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/github/gitStash/" rel="permalink">git stash 쉽게 이해하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">git stash를 사용하는 이유
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/github/gitReset/" rel="permalink">git reset과 git revert 쉽게 이해하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">이 글은 git add, git commit, git push 등 git의 기본 개념에 대한 이해를 전제로 합니다.
+</p>
+  </article>
+</div>
+ 
+  </div>
+  <a href="#page-title" class="back-to-top"
+    >Back to Top
+    &uarr;</a
+  >
+</section>
+
+<section id="2020" class="taxonomy__section">
+  <h2 class="archive__subtitle">2020</h2>
+  <div class="entries-list">
+     
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/machine-learning/TimeSeries2/" rel="permalink">케라스(Keras)로 Stacked LSTM 구현하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          1 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">소개
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/machine-learning/TimeSeries/" rel="permalink">뉴럴 네트워크로 시계열 데이터 예측하기(time series prediction)
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          3 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">블로그 글 “How To Use Neural Networks to Forecast Multiple Steps of a Time Series“을 참고하여 작성하였습니다.
+</p>
+  </article>
+</div>
+ 
+  </div>
+  <a href="#page-title" class="back-to-top"
+    >Back to Top
+    &uarr;</a
+  >
+</section>
+
+<section id="2019" class="taxonomy__section">
+  <h2 class="archive__subtitle">2019</h2>
+  <div class="entries-list">
+     
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/machine-learning/review/" rel="permalink">Feature Pyramid Networks for Object Detection
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          4 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">source: Feature Pyramid Networks for Object Detection (paper link)
+
+</p>
+  </article>
+</div>
+  
+
+
+
+<div class="list__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/machine-learning/first-post/" rel="permalink">Categorical variable encoding using aggregated mean and std
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          5 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">Introduction
+Preprocessing cartegorical features is no easy task. The most basic technique would probably be one-hot-encoding method. However, one-hot-encodi...</p>
+  </article>
+</div>
+ 
+  </div>
+  <a href="#page-title" class="back-to-top"
+    >Back to Top
+    &uarr;</a
+  >
+</section>
+
+
+  </div>
+</div>
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2021 Dohee. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>
