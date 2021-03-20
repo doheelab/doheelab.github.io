@@ -1,7 +1,10 @@
 ---
 title: '케라스(Keras)로 Stacked LSTM 구현하기'
 date: 2020-04-30 09:00:00 -0400
+author: Dohee Jung
+layout: posts
 categories: machine-learning
+tags: [Time Series, Neural Network, Machine Learning, Deep Learning, Keras, LSTM, Stacked LSTM]
 ---
 
 ## 소개

@@ -9,36 +9,29 @@
   <head>
     <meta charset="utf-8">
 
-<!-- begin _includes/seo.html --><title>별 헤는 밤 - Yoon - Dohee’s ML Lab</title>
-<meta name="description" content="Yoon 시인의 작품 모음 - 별 헤는 밤">
+<!-- begin _includes/seo.html --><title>git stash 쉽게 이해하기 - Dohee’s ML Lab</title>
+<meta name="description" content="git stash를 사용하는 이유">
 
-
-  <meta name="author" content="Your Name">
-  
-  <meta property="article:author" content="Your Name">
-  
 
 
 <meta property="og:type" content="article">
 <meta property="og:locale" content="en_US">
 <meta property="og:site_name" content="Dohee's ML Lab">
-<meta property="og:title" content="별 헤는 밤 - Yoon">
-<meta property="og:url" content="https://doheelab.github.io/yoon/si-byul/">
+<meta property="og:title" content="git stash 쉽게 이해하기">
+<meta property="og:url" content="https://doheelab.github.io/github/gitStash/">
 
 
-  <meta property="og:description" content="Yoon 시인의 작품 모음 - 별 헤는 밤">
-
-
-
+  <meta property="og:description" content="git stash를 사용하는 이유">
 
 
 
 
-  <meta property="article:published_time" content="2019-04-16T00:00:00+09:00">
 
 
 
-  <meta property="article:modified_time" content="2019-04-13T22:06:00+09:00">
+  <meta property="article:published_time" content="2021-03-17T22:00:00+09:00">
+
+
 
 
 
@@ -47,7 +40,7 @@
   
 
 
-<link rel="canonical" href="https://doheelab.github.io/yoon/si-byul/">
+<link rel="canonical" href="https://doheelab.github.io/github/gitStash/">
 
 
 
@@ -110,7 +103,7 @@
 
   </head>
 
-  <body class="layout--home">
+  <body class="layout--posts">
     <nav class="skip-links">
   <h2 class="screen-reader-text">Skip links</h2>
   <ul>
@@ -163,58 +156,112 @@
 
   <div class="archive">
     
-      <h1 id="page-title" class="page__title">별 헤는 밤 - Yoon</h1>
+      <h1 id="page-title" class="page__title">git stash 쉽게 이해하기</h1>
     
-    <p>별 헤는 밤</p>
+    <h2 id="git-stash를-사용하는-이유">git stash를 사용하는 이유</h2>
 
-<p>계절이 지나가는 하늘에는<br />
-가을로 가득 차 있습니다.</p>
+<p>한 브랜치에서 작업을 하다가 다른 브랜치로 checkout 해야하는 경우가 있습니다.</p>
 
-<p>나는 아무 걱정도 없이<br />
-가을 속의 별들을 다 헤일 듯합니다.</p>
+<p>이때 <code class="language-plaintext highlighter-rouge">git checkout [브랜치]</code>를 사용하면 다음과 같은 오류를 만나게 됩니다.</p>
 
-<p>가슴 속에 하나 둘 새겨지는 별을<br />
-이제 다 못 헤는 것은<br />
-쉬이 아침이 오는 까닭이요,<br />
-내일 밤이 남은 까닭이요,<br />
-아직 나의 청춘이 다하지 않은 까닭입니다.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rror: Your local changes to the following files would be overwritten by checkout:
+	_posts/2021-03-17-gitStash.md
+Please, commit your changes or stash them before you can switch branches.
+</code></pre></div></div>
 
-<p>별 하나에 추억과<br />
-별 하나에 사랑과<br />
-별 하나에 쓸쓸함과<br />
-별 하나에 동경과<br />
-별 하나에 시와<br />
-별 하나에 어머니, 어머니,</p>
+<p>즉, 현재 로컬의 상태에 변화가 있다면 브랜치를 변경하기 전에 반드시 <code class="language-plaintext highlighter-rouge">commit</code> 혹은 <code class="language-plaintext highlighter-rouge">stash</code>를 사용해야 합니다.
+<code class="language-plaintext highlighter-rouge">git commit</code> 후에 브랜치를 변경할 수도 있지만, <code class="language-plaintext highlighter-rouge">commit</code>하지 않고 나중에 다시 돌아와서 작업을 하기 위해서 <code class="language-plaintext highlighter-rouge">git stash</code>를 사용하면, <code class="language-plaintext highlighter-rouge">git stash apply</code> 혹은 <code class="language-plaintext highlighter-rouge">git stash pop</code>를 통해 나중에 불러올 수 있습니다.</p>
 
-<p>어머님, 나는 별 하나에 아름다운 말 한마디씩 불러봅니다. 소학교때 책상을 같이 했던 아이들의 이름과, 패, 경, 옥 이런 이국소녀들의 이름과 벌써 애기 어머니 된 계집애들의 이름과, 가난한 이웃사람들의 이름과, 비둘기, 강아지, 토끼, 노새, 노루, ｢프란시스․쟘｣ ｢라이너․마리아․릴케｣ 이런 시인의 이름을 불러봅니다.</p>
+<p>또한 이렇게 저장한 내용을 다른 브랜치에 적용하는 것도 가능합니다. (잘못된 브랜치에서 작업 시 유용하게 사용)</p>
 
-<p>이네들은 너무나 멀리 있습니다.<br />
-별이 아슬히 멀 듯이,</p>
+<hr />
 
-<p>어머님,<br />
-그리고 당신은 멀리 북간도에 계십니다.</p>
+<p><br /></p>
 
-<p>나는 무엇인지 그리워<br />
-이 많은 별빛이 나린 언덕 위에<br />
-내 이름자를 써보고,<br />
-흙으로 덮어 버리었습니다.</p>
+<h2 id="git-stash-필수-명령어">git stash 필수 명령어</h2>
 
-<p>딴은 밤을 새워 우는 벌레는<br />
-부끄러운 이름을 슬퍼하는 까닭입니다.</p>
+<p>다음은 <code class="language-plaintext highlighter-rouge">git stash</code>를 사용하기 위한 필수 명령어입니다.</p>
 
-<p>그러나 겨울이 지나고 나의 별에도 봄이 오면<br />
-무덤 위에 파란 잔디가 피어나듯이<br />
-내 이름자 묻힌 언덕 위에도<br />
-자랑처럼 풀이 무성할 게외다.</p>
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">명령어</th>
+      <th style="text-align: center">역할</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash (save)</code></td>
+      <td style="text-align: center">작업 내용을 stash 공간에 안전하게 보관합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash list</code></td>
+      <td style="text-align: center">보관 중인 stash 목록을 조회합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash apply</code></td>
+      <td style="text-align: center">stash에 저장된 내용을 현재 브랜치에 적용합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash drop</code></td>
+      <td style="text-align: center">stash에 저장된 내용을 삭제합니다.</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">git stash pop</code></td>
+      <td style="text-align: center">stash에 저장된 내용을 현재 브랜치에 적용한 후, 삭제합니다. (<code class="language-plaintext highlighter-rouge">apply</code> + <code class="language-plaintext highlighter-rouge">pop</code>)</td>
+    </tr>
+  </tbody>
+</table>
 
+<hr />
 
-<h3 class="archive__subtitle">
-  Recent Posts
-</h3>
+<p><br /></p>
 
+<h3 id="tip-git-stash-apply-index"><mark>TIP</mark> git stash apply –index</h3>
+
+<p><code class="language-plaintext highlighter-rouge">–index</code> 옵션을 주면 Staged 상태까지 그대로 복원합니다.</p>
+
+<h2 id="참고자료">참고자료</h2>
+
+<p>[1] <a href="https://gmlwjd9405.github.io/2018/05/18/git-stash.html">[Git] git stash 명령어 사용하기</a></p>
+
+<p>[2] <a href="https://mylko72.gitbooks.io/git/content/_stash.html">스테이시(stash)에 안전하게 보관하기</a></p>
+  
+<span class="tag">Github</span>
+
+<span class="tag">Git Stash</span>
  
-<div class="entries-list">
+
+<ul class="taxonomy__index">
    
+  <li>
+    <a href="#2021">
+      <strong>2021</strong>
+      <span class="taxonomy__count">4</span>
+    </a>
+  </li>
+  
+  <li>
+    <a href="#2020">
+      <strong>2020</strong>
+      <span class="taxonomy__count">2</span>
+    </a>
+  </li>
+  
+  <li>
+    <a href="#2019">
+      <strong>2019</strong>
+      <span class="taxonomy__count">2</span>
+    </a>
+  </li>
+  
+</ul>
+
+  
+<section id="2021" class="taxonomy__section">
+  <h2 class="archive__subtitle">2021</h2>
+  <div class="entries-list">
+     
 
 
 
@@ -223,7 +270,7 @@
     
     <h2 class="archive__item-title no_toc" itemprop="headline">
       
-        <a href="/parse_json/" rel="permalink">pandas를 이용하여 json 데이터 파싱하기
+        <a href="/pandas/parse_json/" rel="permalink">pandas를 이용하여 json 데이터 파싱하기
 </a>
       
     </h2>
@@ -252,8 +299,7 @@
 </p>
   </article>
 </div>
-
-   
+  
 
 
 
@@ -262,7 +308,7 @@
     
     <h2 class="archive__item-title no_toc" itemprop="headline">
       
-        <a href="/Seungineer1/" rel="permalink">비전공자로 개발자 커리어를 시작하기
+        <a href="/motivation/Seungineer1/" rel="permalink">비전공자로 개발자 커리어를 시작하기
 </a>
       
     </h2>
@@ -291,8 +337,7 @@
 </p>
   </article>
 </div>
-
-   
+  
 
 
 
@@ -301,7 +346,7 @@
     
     <h2 class="archive__item-title no_toc" itemprop="headline">
       
-        <a href="/gitStash/" rel="permalink">git stash 쉽게 이해하기
+        <a href="/github/gitStash/" rel="permalink">git stash 쉽게 이해하기
 </a>
       
     </h2>
@@ -319,7 +364,7 @@
       <span class="page__meta-readtime">
         <i class="far fa-clock" aria-hidden="true"></i>
         
-          1 minute read
+          less than 1 minute read
         
       </span>
     
@@ -330,8 +375,7 @@
 </p>
   </article>
 </div>
-
-   
+  
 
 
 
@@ -369,8 +413,18 @@
 </p>
   </article>
 </div>
+ 
+  </div>
+  <a href="#page-title" class="back-to-top"
+    >Back to Top
+    &uarr;</a
+  >
+</section>
 
-   
+<section id="2020" class="taxonomy__section">
+  <h2 class="archive__subtitle">2020</h2>
+  <div class="entries-list">
+     
 
 
 
@@ -397,7 +451,7 @@
       <span class="page__meta-readtime">
         <i class="far fa-clock" aria-hidden="true"></i>
         
-          1 minute read
+          3 minute read
         
       </span>
     
@@ -408,8 +462,7 @@
 </p>
   </article>
 </div>
-
-   
+  
 
 
 
@@ -447,8 +500,18 @@
 </p>
   </article>
 </div>
+ 
+  </div>
+  <a href="#page-title" class="back-to-top"
+    >Back to Top
+    &uarr;</a
+  >
+</section>
 
-   
+<section id="2019" class="taxonomy__section">
+  <h2 class="archive__subtitle">2019</h2>
+  <div class="entries-list">
+     
 
 
 
@@ -487,8 +550,7 @@
 </p>
   </article>
 </div>
-
-   
+  
 
 
 
@@ -526,206 +588,13 @@
 Preprocessing cartegorical features is no easy task. The most basic technique would probably be one-hot-encoding method. However, one-hot-encodi...</p>
   </article>
 </div>
-
-   
-
-
-
-<div class="list__item">
-  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title no_toc" itemprop="headline">
-      
-        <a href="/%EC%9D%BC%EC%83%81/buy-shoes/" rel="permalink">신발 사러 간 날
-</a>
-      
-    </h2>
-    
-
-  <p class="page__meta">
-    
-
-    
-
-    
-      
-      
-
-      <span class="page__meta-readtime">
-        <i class="far fa-clock" aria-hidden="true"></i>
-        
-          less than 1 minute read
-        
-      </span>
-    
-  </p>
-
-
-    <p class="archive__item-excerpt" itemprop="description">오늘은 백화점에 신발을 사러 갔다
-</p>
-  </article>
-</div>
-
-   
-
-
-
-<div class="list__item">
-  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title no_toc" itemprop="headline">
-      
-        <a href="/yoon/si-byul/" rel="permalink">별 헤는 밤 - Yoon
-</a>
-      
-    </h2>
-    
-
-  <p class="page__meta">
-    
-
-    
-
-    
-      
-      
-
-      <span class="page__meta-readtime">
-        <i class="far fa-clock" aria-hidden="true"></i>
-        
-          less than 1 minute read
-        
-      </span>
-    
-  </p>
-
-
-    <p class="archive__item-excerpt" itemprop="description">Yoon 시인의 작품 모음 - 별 헤는 밤
-</p>
-  </article>
-</div>
-
-   
-
-
-
-<div class="list__item">
-  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title no_toc" itemprop="headline">
-      
-        <a href="/yoon/si-jahwasing/" rel="permalink">자화상 - Yoon
-</a>
-      
-    </h2>
-    
-
-  <p class="page__meta">
-    
-
-    
-
-    
-      
-      
-
-      <span class="page__meta-readtime">
-        <i class="far fa-clock" aria-hidden="true"></i>
-        
-          less than 1 minute read
-        
-      </span>
-    
-  </p>
-
-
-    <p class="archive__item-excerpt" itemprop="description">Yoon 시인의 작품 모음 - 자화상
-</p>
-  </article>
-</div>
-
-   
-
-
-
-<div class="list__item">
-  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title no_toc" itemprop="headline">
-      
-        <a href="/yoon/si-susi/" rel="permalink">서시 - Yoon
-</a>
-      
-    </h2>
-    
-
-  <p class="page__meta">
-    
-
-    
-
-    
-      
-      
-
-      <span class="page__meta-readtime">
-        <i class="far fa-clock" aria-hidden="true"></i>
-        
-          less than 1 minute read
-        
-      </span>
-    
-  </p>
-
-
-    <p class="archive__item-excerpt" itemprop="description">Yoon 시인의 작품 모음 - 서시
-</p>
-  </article>
-</div>
-
-   
-
-
-
-<div class="list__item">
-  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
-    
-    <h2 class="archive__item-title no_toc" itemprop="headline">
-      
-        <a href="/blog/first-post/" rel="permalink">github.io 블로그 시작하기
-</a>
-      
-    </h2>
-    
-
-  <p class="page__meta">
-    
-
-    
-
-    
-      
-      
-
-      <span class="page__meta-readtime">
-        <i class="far fa-clock" aria-hidden="true"></i>
-        
-          less than 1 minute read
-        
-      </span>
-    
-  </p>
-
-
-    <p class="archive__item-excerpt" itemprop="description">GitHub Blog 서비스인 github.io 블로그 시작하기로 했다.
-</p>
-  </article>
-</div>
-
-  
-</div>
-
-
+ 
+  </div>
+  <a href="#page-title" class="back-to-top"
+    >Back to Top
+    &uarr;</a
+  >
+</section>
 
 
   </div>

@@ -3,10 +3,8 @@ title: 'pandas를 이용하여 json 데이터 파싱하기'
 date: 2021-03-19 09:00:00 -0400
 author: Dohee Jung
 layout: posts
-tags: [pandas, json]
-comments: true
-
-
+categories: pandas
+tags: [Pandas, Json, Parsing, Data Preprocessing]
 ---
 
 

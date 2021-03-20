@@ -5,8 +5,8 @@
     <description>An amazing website.</description>
     <link>https://doheelab.github.io/</link>
     <atom:link href="https://doheelab.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sat, 20 Mar 2021 01:51:43 +0900</pubDate>
-    <lastBuildDate>Sat, 20 Mar 2021 01:51:43 +0900</lastBuildDate>
+    <pubDate>Sat, 20 Mar 2021 09:28:16 +0900</pubDate>
+    <lastBuildDate>Sat, 20 Mar 2021 09:28:16 +0900</lastBuildDate>
     <generator>Jekyll v4.2.0</generator>
     
       <item>
@@ -263,13 +263,19 @@
 &lt;p&gt;[2] &lt;a href=&quot;https://rednose86.tistory.com/10&quot;&gt;파싱(Parsing)과 컴파일(Compile)의 차이점&lt;/a&gt;&lt;/p&gt;
 </description>
         <pubDate>Fri, 19 Mar 2021 22:00:00 +0900</pubDate>
-        <link>https://doheelab.github.io/parse_json/</link>
-        <guid isPermaLink="true">https://doheelab.github.io/parse_json/</guid>
+        <link>https://doheelab.github.io/pandas/parse_json/</link>
+        <guid isPermaLink="true">https://doheelab.github.io/pandas/parse_json/</guid>
+        
+        <category>Pandas</category>
+        
+        <category>Json</category>
+        
+        <category>Parsing</category>
+        
+        <category>Data Preprocessing</category>
+        
         
         <category>pandas</category>
-        
-        <category>json</category>
-        
         
       </item>
     
@@ -340,11 +346,17 @@
 &lt;p&gt;[1] &lt;a href=&quot;https://www.youtube.com/watch?v=5bIzMeC6Djk&quot;&gt;비전공자로 개발자 커리어를 시작하는 사람들에게&lt;/a&gt;&lt;/p&gt;
 </description>
         <pubDate>Thu, 18 Mar 2021 22:00:00 +0900</pubDate>
-        <link>https://doheelab.github.io/Seungineer1/</link>
-        <guid isPermaLink="true">https://doheelab.github.io/Seungineer1/</guid>
+        <link>https://doheelab.github.io/motivation/Seungineer1/</link>
+        <guid isPermaLink="true">https://doheelab.github.io/motivation/Seungineer1/</guid>
         
-        <category>github</category>
+        <category>Motivation</category>
         
+        <category>Career</category>
+        
+        <category>Software Engineering</category>
+        
+        
+        <category>motivation</category>
         
       </item>
     
@@ -420,11 +432,15 @@ Please, commit your changes or stash them before you can switch branches.
 &lt;p&gt;[2] &lt;a href=&quot;https://mylko72.gitbooks.io/git/content/_stash.html&quot;&gt;스테이시(stash)에 안전하게 보관하기&lt;/a&gt;&lt;/p&gt;
 </description>
         <pubDate>Wed, 17 Mar 2021 22:00:00 +0900</pubDate>
-        <link>https://doheelab.github.io/gitStash/</link>
-        <guid isPermaLink="true">https://doheelab.github.io/gitStash/</guid>
+        <link>https://doheelab.github.io/github/gitStash/</link>
+        <guid isPermaLink="true">https://doheelab.github.io/github/gitStash/</guid>
+        
+        <category>Github</category>
+        
+        <category>Git Stash</category>
+        
         
         <category>github</category>
-        
         
       </item>
     
@@ -628,6 +644,12 @@ Please, commit your changes or stash them before you can switch branches.
         <pubDate>Tue, 16 Mar 2021 22:00:00 +0900</pubDate>
         <link>https://doheelab.github.io/github/gitReset/</link>
         <guid isPermaLink="true">https://doheelab.github.io/github/gitReset/</guid>
+        
+        <category>Github</category>
+        
+        <category>Git Reset</category>
+        
+        <category>Git Revert</category>
         
         
         <category>github</category>
@@ -889,6 +911,20 @@ Epoch 20/20
         <link>https://doheelab.github.io/machine-learning/TimeSeries2/</link>
         <guid isPermaLink="true">https://doheelab.github.io/machine-learning/TimeSeries2/</guid>
         
+        <category>Time Series</category>
+        
+        <category>Neural Network</category>
+        
+        <category>Machine Learning</category>
+        
+        <category>Deep Learning</category>
+        
+        <category>Keras</category>
+        
+        <category>LSTM</category>
+        
+        <category>Stacked LSTM</category>
+        
         
         <category>machine-learning</category>
         
@@ -1095,6 +1131,18 @@ Epoch 20/20
         <link>https://doheelab.github.io/machine-learning/TimeSeries/</link>
         <guid isPermaLink="true">https://doheelab.github.io/machine-learning/TimeSeries/</guid>
         
+        <category>Time Series</category>
+        
+        <category>Neural Network</category>
+        
+        <category>Machine Learning</category>
+        
+        <category>Deep Learning</category>
+        
+        <category>Keras</category>
+        
+        <category>LSTM</category>
+        
         
         <category>machine-learning</category>
         
@@ -1208,6 +1256,10 @@ AR on small, medium, and large objects (ARs, ARm, and ARl) following the definit
         <pubDate>Tue, 19 Nov 2019 22:00:00 +0900</pubDate>
         <link>https://doheelab.github.io/machine-learning/review/</link>
         <guid isPermaLink="true">https://doheelab.github.io/machine-learning/review/</guid>
+        
+        <category>Object Detection</category>
+        
+        <category>Review</category>
         
         
         <category>machine-learning</category>
@@ -1488,175 +1540,14 @@ Stopping. Best iteration:
         <link>https://doheelab.github.io/machine-learning/first-post/</link>
         <guid isPermaLink="true">https://doheelab.github.io/machine-learning/first-post/</guid>
         
+        <category>Pandas</category>
+        
+        <category>Gradient Boosting</category>
+        
+        <category>Ensemble</category>
+        
         
         <category>machine-learning</category>
-        
-      </item>
-    
-      <item>
-        <title>신발 사러 간 날</title>
-        <description>&lt;p&gt;오늘은 백화점에 신발을 사러 갔다. 백화점은 상상한 것 보다 엄청 나게 컸다.
-신발도 무지무지하게 많았다. 그 중에서 제일 맘에 드는 신발을 샀다.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;https://doheelab.github.io/assets/images/shoes.jpg&quot; alt=&quot;&quot; class=&quot;align-center&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;내 신발 위 사진의 신발과 비슷하게 생겼다. 맘에 든다.&lt;/p&gt;
-</description>
-        <pubDate>Wed, 17 Apr 2019 00:00:00 +0900</pubDate>
-        <link>https://doheelab.github.io/%EC%9D%BC%EC%83%81/buy-shoes/</link>
-        <guid isPermaLink="true">https://doheelab.github.io/%EC%9D%BC%EC%83%81/buy-shoes/</guid>
-        
-        <category>신발</category>
-        
-        
-        <category>일상</category>
-        
-      </item>
-    
-      <item>
-        <title>별 헤는 밤 - Yoon</title>
-        <description>&lt;p&gt;별 헤는 밤&lt;/p&gt;
-
-&lt;p&gt;계절이 지나가는 하늘에는&lt;br /&gt;
-가을로 가득 차 있습니다.&lt;/p&gt;
-
-&lt;p&gt;나는 아무 걱정도 없이&lt;br /&gt;
-가을 속의 별들을 다 헤일 듯합니다.&lt;/p&gt;
-
-&lt;p&gt;가슴 속에 하나 둘 새겨지는 별을&lt;br /&gt;
-이제 다 못 헤는 것은&lt;br /&gt;
-쉬이 아침이 오는 까닭이요,&lt;br /&gt;
-내일 밤이 남은 까닭이요,&lt;br /&gt;
-아직 나의 청춘이 다하지 않은 까닭입니다.&lt;/p&gt;
-
-&lt;p&gt;별 하나에 추억과&lt;br /&gt;
-별 하나에 사랑과&lt;br /&gt;
-별 하나에 쓸쓸함과&lt;br /&gt;
-별 하나에 동경과&lt;br /&gt;
-별 하나에 시와&lt;br /&gt;
-별 하나에 어머니, 어머니,&lt;/p&gt;
-
-&lt;p&gt;어머님, 나는 별 하나에 아름다운 말 한마디씩 불러봅니다. 소학교때 책상을 같이 했던 아이들의 이름과, 패, 경, 옥 이런 이국소녀들의 이름과 벌써 애기 어머니 된 계집애들의 이름과, 가난한 이웃사람들의 이름과, 비둘기, 강아지, 토끼, 노새, 노루, ｢프란시스․쟘｣ ｢라이너․마리아․릴케｣ 이런 시인의 이름을 불러봅니다.&lt;/p&gt;
-
-&lt;p&gt;이네들은 너무나 멀리 있습니다.&lt;br /&gt;
-별이 아슬히 멀 듯이,&lt;/p&gt;
-
-&lt;p&gt;어머님,&lt;br /&gt;
-그리고 당신은 멀리 북간도에 계십니다.&lt;/p&gt;
-
-&lt;p&gt;나는 무엇인지 그리워&lt;br /&gt;
-이 많은 별빛이 나린 언덕 위에&lt;br /&gt;
-내 이름자를 써보고,&lt;br /&gt;
-흙으로 덮어 버리었습니다.&lt;/p&gt;
-
-&lt;p&gt;딴은 밤을 새워 우는 벌레는&lt;br /&gt;
-부끄러운 이름을 슬퍼하는 까닭입니다.&lt;/p&gt;
-
-&lt;p&gt;그러나 겨울이 지나고 나의 별에도 봄이 오면&lt;br /&gt;
-무덤 위에 파란 잔디가 피어나듯이&lt;br /&gt;
-내 이름자 묻힌 언덕 위에도&lt;br /&gt;
-자랑처럼 풀이 무성할 게외다.&lt;/p&gt;
-</description>
-        <pubDate>Tue, 16 Apr 2019 00:00:00 +0900</pubDate>
-        <link>https://doheelab.github.io/yoon/si-byul/</link>
-        <guid isPermaLink="true">https://doheelab.github.io/yoon/si-byul/</guid>
-        
-        <category>별 헤는 밤</category>
-        
-        <category>Yoon</category>
-        
-        <category>시</category>
-        
-        
-        <category>Yoon</category>
-        
-      </item>
-    
-      <item>
-        <title>자화상 - Yoon</title>
-        <description>&lt;p&gt;자화상&lt;/p&gt;
-
-&lt;p&gt;산모퉁이를 돌아 논가 외딴 우물을 홀로&lt;br /&gt;
-찾아가선 가만히 들여다봅니다.&lt;/p&gt;
-
-&lt;p&gt;우물 속에는 달이 밝고 구름이 흐르고&lt;br /&gt;
-하늘이 펼치고 파아란 바람이 불고 가을이 있습니다.&lt;/p&gt;
-
-&lt;p&gt;그리고 한 사나이가 있습니다.&lt;br /&gt;
-어쩐지 그 사나이가 미워져 돌아갑니다.&lt;/p&gt;
-
-&lt;p&gt;돌아가다 생각하니 그 사나이가 가엾어집니다. 도로 가 들여다보니 사나이는 그대로 있습니다.&lt;/p&gt;
-
-&lt;p&gt;다시 그 사나이가 미워져 돌아갑니다.&lt;br /&gt;
-돌아가다 생각하니 그 사나이가 그리워집니다.&lt;/p&gt;
-
-&lt;p&gt;우물 속에는 달이 밝고 구름이 흐르고 하늘이 펼치고 파아란 바람이 불고 가을이 있고 추억처럼 사나이가 있습니다.&lt;/p&gt;
-</description>
-        <pubDate>Mon, 15 Apr 2019 00:00:00 +0900</pubDate>
-        <link>https://doheelab.github.io/yoon/si-jahwasing/</link>
-        <guid isPermaLink="true">https://doheelab.github.io/yoon/si-jahwasing/</guid>
-        
-        <category>자화상</category>
-        
-        <category>Yoon</category>
-        
-        <category>시</category>
-        
-        
-        <category>Yoon</category>
-        
-      </item>
-    
-      <item>
-        <title>서시 - Yoon</title>
-        <description>&lt;p&gt;서시&lt;/p&gt;
-
-&lt;p&gt;죽는 날까지 하늘을 우러러&lt;br /&gt;
-한점 부끄럼이 없기를,&lt;br /&gt;
-잎새에 이는 바람에도&lt;br /&gt;
-나는 괴로워했다.&lt;br /&gt;
-별을 노래하는 마음으로&lt;br /&gt;
-모든 죽어가는 것을 사랑해야지&lt;br /&gt;
-그리고 나한테 주어진 길을&lt;br /&gt;
-걸어가야겠다.&lt;/p&gt;
-
-&lt;p&gt;오늘밤에도 별이 바람에 스치운다.&lt;/p&gt;
-</description>
-        <pubDate>Sun, 14 Apr 2019 00:00:00 +0900</pubDate>
-        <link>https://doheelab.github.io/yoon/si-susi/</link>
-        <guid isPermaLink="true">https://doheelab.github.io/yoon/si-susi/</guid>
-        
-        <category>서시</category>
-        
-        <category>Yoon</category>
-        
-        <category>시</category>
-        
-        
-        <category>Yoon</category>
-        
-      </item>
-    
-      <item>
-        <title>github.io 블로그 시작하기</title>
-        <description>&lt;p&gt;GitHub Blog 서비스인 github.io 블로그 시작하기로 했다.
-GitHub Blog 서비스의 이름은 Pages이다.&lt;/p&gt;
-
-&lt;p&gt;Pages가 다른 블로그 플랫폼 보다 편한 것 같아서 마음에 든다.
-다른 사람들도 같이 많이 사용했으면 좋겠다는 생각이 든다.&lt;/p&gt;
-
-&lt;p&gt;YFM에서 정의한 제목을 이중 괄호 구문으로 본문에 추가할 수 있다.
-이 글의 제목은 github.io 블로그 시작하기이고
-마지막으로 수정된 시간은 2019-04-13 08:06:00 -0500이다.&lt;/p&gt;
-</description>
-        <pubDate>Sat, 13 Apr 2019 00:00:00 +0900</pubDate>
-        <link>https://doheelab.github.io/blog/first-post/</link>
-        <guid isPermaLink="true">https://doheelab.github.io/blog/first-post/</guid>
-        
-        <category>Blog</category>
-        
-        
-        <category>Blog</category>
         
       </item>
     

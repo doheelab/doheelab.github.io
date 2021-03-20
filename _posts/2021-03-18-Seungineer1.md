@@ -2,8 +2,9 @@
 title: '비전공자로 개발자 커리어를 시작하기'
 date: 2021-03-18 09:00:00 -0400
 author: Dohee Jung
-tags: github
-comments: true
+layout: posts
+categories: motivation
+tags: [Motivation, Career, Software Engineering]
 ---
 
 최근 개발자에 대한 수요가 많아지고, 대우가 좋아지면서 대학교에서 CS를 전공하지 않은 비전공자 개발자들이 많아지고 있습니다.
