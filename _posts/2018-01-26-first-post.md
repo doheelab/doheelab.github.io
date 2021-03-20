@@ -3,8 +3,8 @@ title: "Categorical variable encoding using aggregated mean and std"
 date: 2019-11-19 09:00:00 -0400
 author: Dohee Jung
 layout: posts
-categories: machine-learning
-tags: [Pandas, Gradient Boosting, Ensemble]
+categories: Machine Learning
+tags: [Machine Learning, Pandas, Gradient Boosting, Ensemble]
 ---
 
 ## Introduction
