@@ -124,7 +124,7 @@ var recursivePostOrder = function (node) {
 
 ### 전위 순회(Pre-order)
 
-<div style="text-align:center"><img src="http://108.61.119.12/wp-content/uploads/2014/10/binary-tree-1-pre-order-small.gif" /></div>
+<div style="text-align:center"><img src="http://108.61.119.12/wp-content/uploads/2014/10/binary-tree-1-pre-order-small.gif"/></div>
 
 
 <div align="center">
@@ -149,12 +149,12 @@ var iterativePreOrder = function (node) {
 ```
 
 <div align="center">
-  <i>Pre-order traversal traversal from http://ejklike.github.io/</i>
+  <i>Pre-order traversal</i>
 </div>
 <br/>
 
 
-<div style="text-align:center"><img src="http://108.61.119.12/wp-content/uploads/2014/10/binary-tree-1-order-small.gif" /></div>
+<div style="text-align:center"><img src="http://108.61.119.12/wp-content/uploads/2014/10/binary-tree-1-order-small.gif"/></div>
 
 <div align="center">
   <i>In-order traversal from http://ejklike.github.io/</i>
@@ -188,7 +188,7 @@ var iterativeInOrder = function (node) {
 </div>
 <br/>
 
-<div style="text-align:center"><img src="http://108.61.119.12/wp-content/uploads/2014/10/binary-tree-1-post-order-small.gif" /></div>
+<div style="text-align:center"><img src="https://camo.githubusercontent.com/6ca60eb809d07ee410ae860bbdbc3c92032b7853142dea79d5970c1847433bf1/687474703a2f2f3130382e36312e3131392e31322f77702d636f6e74656e742f75706c6f6164732f323031342f31302f62696e6172792d747265652d312d7072652d6f726465722d736d616c6c2e676966"/></div>
 
 
 <div align="center">
