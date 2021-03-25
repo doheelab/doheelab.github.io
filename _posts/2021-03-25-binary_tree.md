@@ -194,6 +194,7 @@ var iterativeInOrder = function (node) {
 <div align="center">
   <i>Post-order traversal from http://ejklike.github.io/</i>
 </div>
+<br/>
 
 ```javascript
 var iterativePostOrder = function (node) {
