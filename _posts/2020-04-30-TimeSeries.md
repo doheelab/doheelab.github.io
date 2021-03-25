@@ -207,3 +207,9 @@ plt.show()
 ![image](https://user-images.githubusercontent.com/57972646/80660994-56a57e00-8ac8-11ea-85ac-051a34094497.png)
 
 ![image](https://user-images.githubusercontent.com/57972646/80661043-73da4c80-8ac8-11ea-8c78-e1b112c941c9.png)
+
+## 참고자료
+
+[1] [# 케라스와 함께하는 쉬운 딥러닝 (20) - 순환형 신경망(RNN) 모델 만들기 3](https://buomsoo-kim.github.io/keras/2019/07/29/Easy-deep-learning-with-Keras-20.md/)
+
+[2] [Sales_Transactions_Dataset_Weekly Data Set](https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly)
