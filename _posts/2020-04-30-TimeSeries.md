@@ -1,8 +1,6 @@
 ---
 title: "뉴럴 네트워크로 시계열 데이터 예측하기(time series prediction)"
 date: 2020-04-30 09:00:00 -0400
-author: Dohee Jung
-layout: posts
 categories: machine-learning
 tags: [time-series-prediction, neural-network, machine-learning, deep-learning, keras, lstm]
 ---
