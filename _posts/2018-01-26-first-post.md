@@ -1,5 +1,5 @@
 ---
-title: "Categorical variable encoding using aggregated mean and std"
+title: 'Categorical variable encoding using aggregated mean and std'
 date: 2019-11-19 09:00:00 -0400
 categories: machine-learning
 tags: [pandas, gradient-boosting, ensemble]

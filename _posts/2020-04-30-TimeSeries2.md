@@ -1,5 +1,5 @@
 ---
-title: "케라스(Keras)로 Stacked LSTM 구현하기"
+title: '케라스(Keras)로 Stacked LSTM 구현하기'
 date: 2020-04-30 09:00:00 -0400
 categories: machine-learning
 tags: [time-series-prediction, neural-network, machine-learning, deep-learning, keras, lstm, stacked-lstm]
