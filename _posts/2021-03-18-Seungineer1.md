@@ -1,7 +1,6 @@
 ---
 title: '비전공자로 개발자 커리어를 시작하기'
 date: 2021-03-18 09:00:00 -0400
-author: Dohee Jung
 categories: motivation
 tags: [motivation, career, software-engineering]
 ---
