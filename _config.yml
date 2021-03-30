@@ -232,7 +232,6 @@ whitelist:
   - jekyll-feed
   - jekyll-include-cache
 
-
 # Archives
 #  Type
 #  - GitHub Pages compatible archive pages built with Liquid ~> type: liquid (default)
@@ -283,3 +282,11 @@ defaults:
       comments: true
       share: true
       related: true
+
+
+# Conversion
+markdown: kramdown
+highlighter: rouge
+lsi: false
+excerpt_separator: "\n\n"
+incremental: false
