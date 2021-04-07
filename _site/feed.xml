@@ -5,8 +5,8 @@
     <description>An amazing website.</description>
     <link>https://doheelab.github.io/</link>
     <atom:link href="https://doheelab.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Wed, 07 Apr 2021 13:19:17 +0900</pubDate>
-    <lastBuildDate>Wed, 07 Apr 2021 13:19:17 +0900</lastBuildDate>
+    <pubDate>Wed, 07 Apr 2021 13:24:19 +0900</pubDate>
+    <lastBuildDate>Wed, 07 Apr 2021 13:24:19 +0900</lastBuildDate>
     <generator>Jekyll v4.2.0</generator>
     
       <item>
@@ -53,9 +53,9 @@
   &lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&quot;jwt를-통한-인증과-인가&quot;&gt;JWT를 통한 인증과 인가&lt;/h2&gt;
+&lt;h2 id=&quot;jwt를-통한-권한-부여&quot;&gt;JWT를 통한 권한 부여&lt;/h2&gt;
 
-&lt;p&gt;JWT는 &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;session&lt;/code&gt; 대신에 &lt;strong&gt;JSON Web Token(JWT)&lt;/strong&gt;을 활용합니다. 인증 과정에서 서버는 유저정보와 &lt;strong&gt;secret key&lt;/strong&gt;를 사용해서 &lt;strong&gt;JWT&lt;/strong&gt;를 생성하고 클라이언트에 보내줍니다. 클라이언트는 쿠키(혹은 다른 곳)에 JWT를 저장하고, HTTP 요청할 때마다 JWT를 실어서 보냅니다. 요청을 받은 서버는 JWT가 변조되었는지를 확인하고, 변조되지 않았다면 요청을 받아들입니다.&lt;/p&gt;
+&lt;p&gt;JWT는 권한 부여를 위해 session 대신에 &lt;strong&gt;JSON Web Token(JWT)&lt;/strong&gt;을 활용합니다. 인증 과정에서 서버는 유저정보와 &lt;strong&gt;secret key&lt;/strong&gt;를 사용해서 &lt;strong&gt;JWT&lt;/strong&gt;를 생성하고 클라이언트에 보내줍니다. 클라이언트는 쿠키(혹은 다른 곳)에 JWT를 저장하고, HTTP 요청할 때마다 JWT를 실어서 보냅니다. 요청을 받은 서버는 JWT가 변조되었는지를 확인하고, 변조되지 않았다면 요청을 받아들입니다.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;https://user-images.githubusercontent.com/71360682/113804110-da67f000-9798-11eb-896e-51f6a0528def.png&quot; alt=&quot;image&quot; /&gt;&lt;/p&gt;
 

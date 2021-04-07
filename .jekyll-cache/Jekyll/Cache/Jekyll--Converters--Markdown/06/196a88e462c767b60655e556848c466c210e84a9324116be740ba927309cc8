@@ -1,4 +1,4 @@
-I"%<p><strong>JWT</strong>는 특정 유저에게 <strong>권한 부여</strong>(authorization)를 하기 위한 방법 중 하나입니다. 
+I"D<p><strong>JWT</strong>는 특정 유저에게 <strong>권한 부여</strong>(authorization)를 하기 위한 방법 중 하나입니다. 
 서버는 HTTP 요청을 받았을 때, 요청한 유저가 이미 <strong>인증</strong>(ID와 패스워드가 맞는 지 확인, authentication)을 한 유저인지 (JWT를 통해) 확인 후 알맞은 권한을 부여합니다.</p>
 
 <h2 id="세션session을-통한-권한-부여">세션(session)을 통한 권한 부여</h2>
@@ -40,9 +40,9 @@
   </li>
 </ul>
 
-<h2 id="jwt를-통한-인증과-인가">JWT를 통한 인증과 인가</h2>
+<h2 id="jwt를-통한-권한-부여">JWT를 통한 권한 부여</h2>
 
-<p>JWT는 <code class="language-plaintext highlighter-rouge">session</code> 대신에 <strong>JSON Web Token(JWT)</strong>을 활용합니다. 인증 과정에서 서버는 유저정보와 <strong>secret key</strong>를 사용해서 <strong>JWT</strong>를 생성하고 클라이언트에 보내줍니다. 클라이언트는 쿠키(혹은 다른 곳)에 JWT를 저장하고, HTTP 요청할 때마다 JWT를 실어서 보냅니다. 요청을 받은 서버는 JWT가 변조되었는지를 확인하고, 변조되지 않았다면 요청을 받아들입니다.</p>
+<p>JWT는 권한 부여를 위해 session 대신에 <strong>JSON Web Token(JWT)</strong>을 활용합니다. 인증 과정에서 서버는 유저정보와 <strong>secret key</strong>를 사용해서 <strong>JWT</strong>를 생성하고 클라이언트에 보내줍니다. 클라이언트는 쿠키(혹은 다른 곳)에 JWT를 저장하고, HTTP 요청할 때마다 JWT를 실어서 보냅니다. 요청을 받은 서버는 JWT가 변조되었는지를 확인하고, 변조되지 않았다면 요청을 받아들입니다.</p>
 
 <p><img src="https://user-images.githubusercontent.com/71360682/113804110-da67f000-9798-11eb-896e-51f6a0528def.png" alt="image" /></p>
 
@@ -87,28 +87,15 @@
 
 <p>JWT는 Header, Payload, Signature로 구성되어 있습니다. 각 파트는 <code class="language-plaintext highlighter-rouge">.(dot)</code>으로 구분됩니다.</p>
 
-<table>
-  <thead>
-    <tr>
-      <th style="text-align: center">파트</th>
-      <th style="text-align: center">역할</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: center"><strong>Header</strong></td>
-      <td style="text-align: center">인코딩 알고리즘 및 토큰 타입(JWT)</td>
-    </tr>
-    <tr>
-      <td style="text-align: center"><strong>Payload</strong></td>
-      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">request</code>에 대한 데이터  <br /> <code class="language-plaintext highlighter-rouge">sub(subject, user id)</code>: 유저의 id <br /> <code class="language-plaintext highlighter-rouge">iat(issued at), exp or eat(expired at)</code>: 유효기간</td>
-    </tr>
-    <tr>
-      <td style="text-align: center"><strong>Signature</strong></td>
-      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">Header</code>와 <code class="language-plaintext highlighter-rouge">Payload</code>의 정보를 <code class="language-plaintext highlighter-rouge">secret key</code>를 통해 인코딩한 결과</td>
-    </tr>
-  </tbody>
-</table>
+<center>
+
+|       파트       |  역할   |
+| :----------------: | :-----: |
+| **Header** | 인코딩 알고리즘 및 토큰 타입(JWT)|
+|  **Payload**  |  `request`에 대한 데이터  <br /> `sub(subject, user id)`: 유저의 id <br /> `iat(issued at), exp or eat(expired at)`: 유효기간 |
+| **Signature**  |  `Header`와 `Payload`의 정보를 `secret key`를 통해 인코딩한 결과  |
+
+</center>
 
 <div align="center">
   <i>JWT의 구성요소</i>
@@ -130,11 +117,11 @@
 
 <h3 id="1-localsession-storage">1. local/session storage</h3>
 
-<p>동일한 도메인의 JavaScript를 통해 접근할 수 있으므로 <code class="language-plaintext highlighter-rouge">XSS</code>(크로스 사이트 스크립팅, 해커가 악성 스크립트를 삽입하여 쿠키를 탈취)공격에 취약합니다.</p>
+<p>동일한 도메인의 JavaScript를 통해 접근할 수 있으므로 <strong>XSS</strong>(크로스 사이트 스크립팅, 해커가 악성 스크립트를 삽입하여 쿠키를 탈취)공격에 취약합니다.</p>
 
 <h3 id="2-cookies">2. cookies</h3>
 
-<p>쿠키는 <code class="language-plaintext highlighter-rouge">http-only</code> 플래그를 사용해 암호화된 쿠키가 <code class="language-plaintext highlighter-rouge">https</code> 통신할 때만 사용하게 설정해 XSS의 문제(JS로 토큰값에 접근)를 완화시킬 수 있습니다. 하지만<code class="language-plaintext highlighter-rouge"> CSRF</code>(사이트 간 요청 위조) 공격의 위험이 있습니다. 다만 <code class="language-plaintext highlighter-rouge">CSURF</code> 등의 라이브러리를 사용하면 예방할 수 있기 때문에 보통 쿠키 사용을 권장합니다.</p>
+<p>쿠키는 <strong>http-only</strong> 플래그를 사용해 암호화된 쿠키가 <strong>https</strong> 통신할 때만 사용하게 설정해 XSS의 문제(JS로 토큰값에 접근)를 완화시킬 수 있습니다. 하지만 <strong>CSRF</strong>(사이트 간 요청 위조) 공격의 위험이 있습니다. 다만 <strong>CSURF</strong> 등의 라이브러리를 사용하면 예방할 수 있기 때문에 보통 쿠키 사용을 권장합니다.</p>
 
 <h2 id="참고자료">참고자료</h2>
 

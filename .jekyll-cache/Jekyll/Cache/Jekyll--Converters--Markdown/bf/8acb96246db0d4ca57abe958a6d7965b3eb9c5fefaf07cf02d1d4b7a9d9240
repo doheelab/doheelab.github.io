@@ -1,3 +1,0 @@
-I"u<p><strong>JWT</strong>는 특정 유저에게 <strong>권한 부여</strong>(authorization)를 하기 위한 방법 중 하나입니다. 
-서버는 HTTP 요청을 받았을 때, 요청한 유저가 이미 <strong>인증</strong>(ID와 패스워드가 맞는 지 확인, authentication)을 한 유저인지 JWT를 통해 확인 후 알맞은 권한을 부여합니다.</p>
-:ET

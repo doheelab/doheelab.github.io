@@ -263,9 +263,9 @@
   </li>
 </ul>
 
-<h2 id="jwt를-통한-인증과-인가">JWT를 통한 인증과 인가</h2>
+<h2 id="jwt를-통한-권한-부여">JWT를 통한 권한 부여</h2>
 
-<p>JWT는 <code class="language-plaintext highlighter-rouge">session</code> 대신에 <strong>JSON Web Token(JWT)</strong>을 활용합니다. 인증 과정에서 서버는 유저정보와 <strong>secret key</strong>를 사용해서 <strong>JWT</strong>를 생성하고 클라이언트에 보내줍니다. 클라이언트는 쿠키(혹은 다른 곳)에 JWT를 저장하고, HTTP 요청할 때마다 JWT를 실어서 보냅니다. 요청을 받은 서버는 JWT가 변조되었는지를 확인하고, 변조되지 않았다면 요청을 받아들입니다.</p>
+<p>JWT는 권한 부여를 위해 session 대신에 <strong>JSON Web Token(JWT)</strong>을 활용합니다. 인증 과정에서 서버는 유저정보와 <strong>secret key</strong>를 사용해서 <strong>JWT</strong>를 생성하고 클라이언트에 보내줍니다. 클라이언트는 쿠키(혹은 다른 곳)에 JWT를 저장하고, HTTP 요청할 때마다 JWT를 실어서 보냅니다. 요청을 받은 서버는 JWT가 변조되었는지를 확인하고, 변조되지 않았다면 요청을 받아들입니다.</p>
 
 <p><img src="https://user-images.githubusercontent.com/71360682/113804110-da67f000-9798-11eb-896e-51f6a0528def.png" alt="image" /></p>
 
