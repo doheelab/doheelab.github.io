@@ -1,0 +1,480 @@
+I"��<p>이번 글에서는 <strong>Pytorch</strong>를 이용하여, Neural Collaborative Filtering논문의 <strong>MLP</strong>(Multi Layer Perceptron) 파트의 실험을 구현해보겠습니다. 참고한 코드는 
+<code class="language-plaintext highlighter-rouge">hexiangnan</code>의 <code class="language-plaintext highlighter-rouge">PyTorch</code> 구현 <a href="https://github.com/hexiangnan/neural_collaborative_filtering">코드</a>입니다. 실습을 위한 코드는 <a href="https://github.com/doheelab/NCF">링크</a>에서 확인하실 수 있습니다.</p>
+
+<h2 id="학습-데이터">학습 데이터</h2>
+
+<p>저희가 사용할 테이터는 <strong>MovieLens 1 Million (ml-1m)</strong>입니다. 데이터에 대한 자세한 설명은 <a href="https://files.grouplens.org/datasets/movielens/ml-1m-README.txt">링크</a>에서 확인하실 수 있습니다.</p>
+
+<p>이 데이터는 6000명의 유저가 4000개의 영화에 대해서 1~5점 사이로 점수를 매긴 데이터이며, 총 100만여개의 평가 데이터로 이루어져 있습니다. 학습과 테스트에 사용할 데이터셋은 NCF 논문의 저자인 <code class="language-plaintext highlighter-rouge">Xiangnan</code>의 <a href="https://github.com/guoyang9/NCF">저장소</a>에서 받으실 수 있습니다.</p>
+
+<h2 id="라이브러리-불러오기">라이브러리 불러오기</h2>
+
+<p><code class="language-plaintext highlighter-rouge">PyTorch</code>를 사용하여 학습시키고, <code class="language-plaintext highlighter-rouge">텐서보드</code>를 활용하여 학습과정을 시각화하겠습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="n">nn</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="n">optim</span>
+<span class="kn">import</span> <span class="nn">torch.utils.data</span> <span class="k">as</span> <span class="n">data</span>
+<span class="kn">import</span> <span class="nn">torch.backends.cudnn</span> <span class="k">as</span> <span class="n">cudnn</span>
+<span class="kn">from</span> <span class="nn">tensorboardX</span> <span class="kn">import</span> <span class="n">SummaryWriter</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="n">sp</span>
+</code></pre></div></div>
+
+<h2 id="config-args-설정"><code class="language-plaintext highlighter-rouge">config</code>, <code class="language-plaintext highlighter-rouge">args</code> 설정</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"model"</span><span class="p">:</span> <span class="s">"MLP"</span><span class="p">,</span>
+    <span class="s">"model_path"</span><span class="p">:</span> <span class="s">"./models/"</span><span class="p">,</span>
+    <span class="s">"train_rating"</span><span class="p">:</span> <span class="s">"../save/NCF/ml-1m.train.rating"</span><span class="p">,</span>
+    <span class="s">"test_negative"</span><span class="p">:</span> <span class="s">"../save/NCF/ml-1m.test.negative"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">args</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">"batch_size"</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+    <span class="s">"dropout"</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="s">"epochs"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="s">"factor_num"</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span> 
+    <span class="s">"gpu"</span><span class="p">:</span> <span class="s">"0"</span><span class="p">,</span>
+    <span class="s">"lr"</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+    <span class="s">"num_layers"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="s">"num_ng"</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="s">"out"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+    <span class="s">"test_num_ng"</span><span class="p">:</span> <span class="mi">99</span><span class="p">,</span>
+    <span class="s">"top_k"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="s">"CUDA_VISIBLE_DEVICES"</span><span class="p">]</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s">"gpu"</span><span class="p">]</span>
+<span class="n">cudnn</span><span class="p">.</span><span class="n">benchmark</span> <span class="o">=</span> <span class="bp">True</span>
+</code></pre></div></div>
+
+<h2 id="데이터셋-설명">데이터셋 설명</h2>
+
+<p>저희는 <code class="language-plaintext highlighter-rouge">ml-1m.train.rating</code>, <code class="language-plaintext highlighter-rouge">ml-1m.test.negative</code> 2개의 파일을 사용할 것입니다. 파일을 다운받으신 후 <code class="language-plaintext highlighter-rouge">config</code>의 경로를 파일이 있는 저장된 곳으로 바꿔야 합니다. 각 데이터에 대한 설명은 다음과 같습니다.</p>
+
+<h3 id="trainrating">train.rating:</h3>
+
+<ul>
+  <li>학습 데이터</li>
+  <li>형식: <code class="language-plaintext highlighter-rouge">userID\t itemID\t rating\t timestamp (존재할 경우)</code></li>
+</ul>
+
+<h3 id="testnegative">test.negative</h3>
+
+<ul>
+  <li>테스트 데이터</li>
+  <li>각 라인은 99개의 <code class="language-plaintext highlighter-rouge">negative samples</code>를 포함</li>
+  <li>형식: <code class="language-plaintext highlighter-rouge">(userID,itemID)\t negativeItemID1\t negativeItemID2 ...</code></li>
+</ul>
+
+<h3 id="데이터-불러오기">데이터 불러오기</h3>
+
+<p>먼저 <code class="language-plaintext highlighter-rouge">ml-1m.train.rating</code>, <code class="language-plaintext highlighter-rouge">ml-1m.test.negative</code>에 데이터가 어떤 형식으로 저장되어있는지 확인을 해보겠습니다. <code class="language-plaintext highlighter-rouge">train_data</code>는 사이즈가 <code class="language-plaintext highlighter-rouge">(994168, 1)</code>인 DataFrame이며, <code class="language-plaintext highlighter-rouge">test_negative</code>는 사이즈가 <code class="language-plaintext highlighter-rouge">604000</code>인 리스트인 것을 확인할 수 있습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">train_data</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s">"train_rating"</span><span class="p">])</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s">"test_negative"</span><span class="p">],</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">fd</span><span class="p">.</span><span class="n">readlines</span><span class="p">()</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">train_data</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">train_data</span><span class="p">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">lines</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span>
+</code></pre></div></div>
+
+<div style="text-align:center"><img src="https://user-images.githubusercontent.com/57972646/112752295-3e5a1e00-900d-11eb-99b1-105a1aae9f28.png" /></div>
+
+<p><br /></p>
+
+<blockquote>
+  <p>학습 데이터 불러오기</p>
+</blockquote>
+
+<p>저희는 논문의 실험 방식에 따라 평점 데이터는 활용하지 않을 것이기 때문에, <code class="language-plaintext highlighter-rouge">\t</code>를 기준으로 0, 1번째 칼럼만 사용할 것입니다. 다음 코드를 사용하여 원하는 정보만 추출할 수 있습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">train_data</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">[</span><span class="s">"train_rating"</span><span class="p">],</span>
+    <span class="n">sep</span><span class="o">=</span><span class="s">"</span><span class="se">\t</span><span class="s">"</span><span class="p">,</span>
+    <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s">"user"</span><span class="p">,</span> <span class="s">"item"</span><span class="p">],</span>
+    <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">int32</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">int32</span><span class="p">},</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<div style="text-align:center"><img src="https://user-images.githubusercontent.com/57972646/112752833-de18ab80-900f-11eb-9225-0a0f1122b867.png" /></div>
+
+<blockquote>
+  <p>테스트 데이터 불러오기</p>
+</blockquote>
+
+<p>테스트 데이터 또한 <code class="language-plaintext highlighter-rouge">\t</code>를 기준으로 분리할 수 있습니다. <code class="language-plaintext highlighter-rouge">(user_id, movie_id)</code>형식의 튜플의 리스트로 저장하겠습니다. <code class="language-plaintext highlighter-rouge">user_id</code>가 같은 요소들 중 첫번째 요소만이 <code class="language-plaintext highlighter-rouge">실제로 평점을 매긴 movie_id)</code>를 의미하며, 이후의 99개의 요소는 <code class="language-plaintext highlighter-rouge">negative samples</code>를 의미합니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">test_data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s">"test_negative"</span><span class="p">],</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">fd</span><span class="p">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">line</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">line</span> <span class="o">!=</span> <span class="s">""</span><span class="p">:</span>
+        <span class="n">arr</span> <span class="o">=</span> <span class="n">line</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"</span><span class="se">\t</span><span class="s">"</span><span class="p">)</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">test_data</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="nb">eval</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">arr</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">test_data</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)])</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">fd</span><span class="p">.</span><span class="n">readline</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div style="text-align:center"><img src="https://user-images.githubusercontent.com/57972646/112753006-d4dc0e80-9010-11eb-8c67-4dd0e2252e3b.png" /></div>
+
+<p>위에서 설명한 내용을 토대로 <code class="language-plaintext highlighter-rouge">load_all</code> 함수를 정의하겠습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">load_all</span><span class="p">():</span>
+    <span class="s">""" We load all the three file here to save time in each epoch. """</span>
+    <span class="n">train_data</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">[</span><span class="s">"train_rating"</span><span class="p">],</span>
+        <span class="n">sep</span><span class="o">=</span><span class="s">"</span><span class="se">\t</span><span class="s">"</span><span class="p">,</span>
+        <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+        <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s">"user"</span><span class="p">,</span> <span class="s">"item"</span><span class="p">],</span>
+        <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">int32</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">int32</span><span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">user_num</span> <span class="o">=</span> <span class="n">train_data</span><span class="p">[</span><span class="s">"user"</span><span class="p">].</span><span class="nb">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">item_num</span> <span class="o">=</span> <span class="n">train_data</span><span class="p">[</span><span class="s">"item"</span><span class="p">].</span><span class="nb">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="c1"># dok matrix 형식으로 저장하기
+</span>    <span class="n">train_data</span> <span class="o">=</span> <span class="n">train_data</span><span class="p">.</span><span class="n">values</span><span class="p">.</span><span class="n">tolist</span><span class="p">()</span>
+
+    <span class="n">train_mat</span> <span class="o">=</span> <span class="n">sp</span><span class="p">.</span><span class="n">dok_matrix</span><span class="p">((</span><span class="n">user_num</span><span class="p">,</span> <span class="n">item_num</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">train_data</span><span class="p">:</span>
+        <span class="n">train_mat</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">test_data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s">"test_negative"</span><span class="p">],</span> <span class="s">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fd</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">fd</span><span class="p">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="k">while</span> <span class="n">line</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">line</span> <span class="o">!=</span> <span class="s">""</span><span class="p">:</span>
+            <span class="n">arr</span> <span class="o">=</span> <span class="n">line</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"</span><span class="se">\t</span><span class="s">"</span><span class="p">)</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">test_data</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="nb">eval</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="mi">0</span><span class="p">])[</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">arr</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">test_data</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)])</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">fd</span><span class="p">.</span><span class="n">readline</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">user_num</span><span class="p">,</span> <span class="n">item_num</span><span class="p">,</span> <span class="n">train_mat</span>
+
+<span class="c1"># prepare dataset
+</span><span class="n">train_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">user_num</span><span class="p">,</span> <span class="n">item_num</span><span class="p">,</span> <span class="n">train_mat</span> <span class="o">=</span> <span class="n">load_all</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h2 id="data-loader-정의하기"><code class="language-plaintext highlighter-rouge">Data Loader</code> 정의하기</h2>
+
+<p>다음으로는 <code class="language-plaintext highlighter-rouge">torch.utils.data.DataLoader</code>를 이용하여 <code class="language-plaintext highlighter-rouge">Data Loader</code>를 정의하겠습니다. 앞서 살펴보았듯이 <code class="language-plaintext highlighter-rouge">train_data</code>는 전부 <code class="language-plaintext highlighter-rouge">positive sample</code>만을 포함하고 있으므로, 학습을 시키기 위해서 <code class="language-plaintext highlighter-rouge">negative samples</code>를 추가해줍니다<code class="language-plaintext highlighter-rouge">(set_ng_sample)</code>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">NCFData</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">features</span><span class="p">,</span> <span class="n">num_item</span><span class="p">,</span> <span class="n">train_mat</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">num_ng</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">is_training</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NCFData</span><span class="p">,</span> <span class="bp">self</span><span class="p">).</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="s">""" Note that the labels are only useful when training, we thus 
+			add them in the ng_sample() function.
+		"""</span>
+        <span class="c1"># self.features_ps = [[0, 121], [0, 199], [1, 456],...]
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">features_ps</span> <span class="o">=</span> <span class="n">features</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">num_item</span> <span class="o">=</span> <span class="n">num_item</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">train_mat</span> <span class="o">=</span> <span class="n">train_mat</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">num_ng</span> <span class="o">=</span> <span class="n">num_ng</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">is_training</span> <span class="o">=</span> <span class="n">is_training</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_ng_sample</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="p">.</span><span class="n">is_training</span><span class="p">,</span> <span class="s">"no need to sampling when testing"</span>
+
+        <span class="c1"># negative sample 더하기
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">features_ng</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">features_ps</span><span class="p">:</span>
+            <span class="c1"># user
+</span>            <span class="n">u</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">num_ng</span><span class="p">):</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">num_item</span><span class="p">)</span>
+                <span class="c1"># train set에 있는 경우 다시 뽑기
+</span>                <span class="k">while</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">train_mat</span><span class="p">:</span>
+                    <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">randint</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">num_item</span><span class="p">)</span>
+                <span class="bp">self</span><span class="p">.</span><span class="n">features_ng</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">u</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+
+        <span class="n">labels_ps</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">features_ps</span><span class="p">)</span>
+        <span class="n">labels_ng</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">features_ng</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="p">.</span><span class="n">features_fill</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">features_ps</span> <span class="o">+</span> <span class="bp">self</span><span class="p">.</span><span class="n">features_ng</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">labels_fill</span> <span class="o">=</span> <span class="n">labels_ps</span> <span class="o">+</span> <span class="n">labels_ng</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">num_ng</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">labels</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="n">features</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">features_fill</span> <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">is_training</span> <span class="k">else</span> <span class="bp">self</span><span class="p">.</span><span class="n">features_ps</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">labels_fill</span> <span class="k">if</span> <span class="bp">self</span><span class="p">.</span><span class="n">is_training</span> <span class="k">else</span> <span class="bp">self</span><span class="p">.</span><span class="n">labels</span>
+
+        <span class="n">user</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">features</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">labels</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">user</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">label</span>
+
+<span class="k">def</span> <span class="nf">prepare_data</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">item_num</span><span class="p">,</span> <span class="n">train_mat</span><span class="p">):</span>
+
+    <span class="c1"># construct the train and test datasets
+</span>    <span class="c1"># args = (features, num_item, train_mat=None, num_ng=0, is_training=None)
+</span>    <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">NCFData</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">item_num</span><span class="p">,</span> <span class="n">train_mat</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="s">"num_ng"</span><span class="p">],</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="n">test_dataset</span> <span class="o">=</span> <span class="n">NCFData</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">item_num</span><span class="p">,</span> <span class="n">train_mat</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+    <span class="n">train_loader</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">train_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">args</span><span class="p">[</span><span class="s">"batch_size"</span><span class="p">],</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">4</span>
+    <span class="p">)</span>
+    <span class="n">test_loader</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">DataLoader</span><span class="p">(</span>
+        <span class="n">test_dataset</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">args</span><span class="p">[</span><span class="s">"test_num_ng"</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">0</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">train_loader</span><span class="p">,</span> <span class="n">test_loader</span>
+
+<span class="n">train_loader</span><span class="p">,</span> <span class="n">test_loader</span> <span class="o">=</span> <span class="n">prepare_data</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">item_num</span><span class="p">,</span> <span class="n">train_mat</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="모델-정의하기">모델 정의하기</h2>
+
+<p>저희가 사용할 모델을 정의하는 부분입니다. 주목할 부분은 <code class="language-plaintext highlighter-rouge">input_size = 유저 임베딩 벡터 차원 + 아이템 임베딩 벡터 차원</code>이라는 것입니다. 즉 유저, 아이템의 임베딩 벡터를 합친 벡터를 입력으로 받아서, MLP layers를 통해 유저와 아이템 간의 <code class="language-plaintext highlighter-rouge">interaction</code>이 있는지 예측하는 모델로 구성하였습니다. loss 함수로서 <code class="language-plaintext highlighter-rouge">nn.BCEWithLogitsLoss()</code>를 사용하였고, <code class="language-plaintext highlighter-rouge">optimizer</code>는 <code class="language-plaintext highlighter-rouge">optim.Adam(model.parameters(), lr=args["lr"])</code>을 사용하였습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">NCF</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">user_num</span><span class="p">,</span> <span class="n">item_num</span><span class="p">,</span> <span class="n">factor_num</span><span class="p">,</span> <span class="n">num_layers</span><span class="p">,</span> <span class="n">dropout</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">NCF</span><span class="p">,</span> <span class="bp">self</span><span class="p">).</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="s">"""
+		user_num: number of users;
+		item_num: number of items;
+		factor_num: number of predictive factors;
+		num_layers: the number of layers in MLP model;
+		dropout: dropout rate between fully connected layers;
+		model: 'MLP', 'GMF', 'NeuMF-end', and 'NeuMF-pre';
+		"""</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">dropout</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+
+        <span class="c1"># 임베딩 저장공간 확보; (num_embeddings, embedding_dim)
+</span>        <span class="bp">self</span><span class="p">.</span><span class="n">embed_user_MLP</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Embedding</span><span class="p">(</span>
+            <span class="n">user_num</span><span class="p">,</span> <span class="n">factor_num</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">num_layers</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">embed_item_MLP</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Embedding</span><span class="p">(</span>
+            <span class="n">item_num</span><span class="p">,</span> <span class="n">factor_num</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">num_layers</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="p">)</span>
+
+        <span class="n">MLP_modules</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_layers</span><span class="p">):</span>
+            <span class="n">input_size</span> <span class="o">=</span> <span class="n">factor_num</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">**</span> <span class="p">(</span><span class="n">num_layers</span> <span class="o">-</span> <span class="n">i</span><span class="p">))</span>
+            <span class="n">MLP_modules</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="p">.</span><span class="n">dropout</span><span class="p">))</span>
+            <span class="n">MLP_modules</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">input_size</span><span class="p">,</span> <span class="n">input_size</span> <span class="o">//</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">MLP_modules</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">ReLU</span><span class="p">())</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">MLP_layers</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">MLP_modules</span><span class="p">)</span>
+        <span class="n">predict_size</span> <span class="o">=</span> <span class="n">factor_num</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">predict_layer</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">predict_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">_init_weight_</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_init_weight_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># weight 초기화
+</span>        <span class="n">nn</span><span class="p">.</span><span class="n">init</span><span class="p">.</span><span class="n">normal_</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">embed_user_MLP</span><span class="p">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+        <span class="n">nn</span><span class="p">.</span><span class="n">init</span><span class="p">.</span><span class="n">normal_</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">embed_item_MLP</span><span class="p">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">MLP_layers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">):</span>
+                <span class="n">nn</span><span class="p">.</span><span class="n">init</span><span class="p">.</span><span class="n">xavier_uniform_</span><span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">weight</span><span class="p">)</span>
+        <span class="n">nn</span><span class="p">.</span><span class="n">init</span><span class="p">.</span><span class="n">kaiming_uniform_</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">predict_layer</span><span class="p">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nonlinearity</span><span class="o">=</span><span class="s">"sigmoid"</span><span class="p">)</span>
+
+        <span class="c1"># bias 초기화
+</span>        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">.</span><span class="n">modules</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">)</span> <span class="ow">and</span> <span class="n">m</span><span class="p">.</span><span class="n">bias</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">m</span><span class="p">.</span><span class="n">bias</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">zero_</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="n">embed_user_MLP</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">embed_user_MLP</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+        <span class="n">embed_item_MLP</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">embed_item_MLP</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="c1"># 임베딩 벡터 합치기
+</span>        <span class="n">interaction</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">cat</span><span class="p">((</span><span class="n">embed_user_MLP</span><span class="p">,</span> <span class="n">embed_item_MLP</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">output_MLP</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">MLP_layers</span><span class="p">(</span><span class="n">interaction</span><span class="p">)</span>
+        <span class="n">concat</span> <span class="o">=</span> <span class="n">output_MLP</span>
+
+        <span class="c1"># 예측하기
+</span>        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">predict_layer</span><span class="p">(</span><span class="n">concat</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">prediction</span><span class="p">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">create_model</span><span class="p">(</span><span class="n">user_num</span><span class="p">,</span> <span class="n">item_num</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">NCF</span><span class="p">(</span>
+        <span class="n">user_num</span><span class="p">,</span>
+        <span class="n">item_num</span><span class="p">,</span>
+        <span class="n">args</span><span class="p">[</span><span class="s">"factor_num"</span><span class="p">],</span>
+        <span class="n">args</span><span class="p">[</span><span class="s">"num_layers"</span><span class="p">],</span>
+        <span class="n">args</span><span class="p">[</span><span class="s">"dropout"</span><span class="p">],</span>
+        <span class="n">config</span><span class="p">[</span><span class="s">"model"</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">model</span><span class="p">.</span><span class="n">cuda</span><span class="p">()</span>
+    <span class="n">loss_function</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">BCEWithLogitsLoss</span><span class="p">()</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">optim</span><span class="p">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">lr</span><span class="o">=</span><span class="n">args</span><span class="p">[</span><span class="s">"lr"</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">model</span><span class="p">,</span> <span class="n">loss_function</span><span class="p">,</span> <span class="n">optimizer</span>
+
+<span class="c1"># 모델 생성하기
+</span><span class="n">model</span><span class="p">,</span> <span class="n">loss_function</span><span class="p">,</span> <span class="n">optimizer</span> <span class="o">=</span> <span class="n">create_model</span><span class="p">(</span><span class="n">user_num</span><span class="p">,</span> <span class="n">item_num</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="평가지표-만들기">평가지표 만들기</h2>
+
+<p>실험에서 사용할 평가지표는 <code class="language-plaintext highlighter-rouge">hit rate</code>와 <code class="language-plaintext highlighter-rouge">nDCG(normalized Discounted Cumulative Gain)</code>입니다. <code class="language-plaintext highlighter-rouge">hit rate</code>는 <code class="language-plaintext highlighter-rouge">ground truth</code>가 예측한 아이템 순위 <code class="language-plaintext highlighter-rouge">k</code> 안에 들어가는 비율을 나타낸 것이고, <code class="language-plaintext highlighter-rouge">nDCG</code>는 관련성이 높은 결과를 상위권에 노출시켰는지를 평가하는 지표입니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">hit</span><span class="p">(</span><span class="n">gt_item</span><span class="p">,</span> <span class="n">pred_items</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">gt_item</span> <span class="ow">in</span> <span class="n">pred_items</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">def</span> <span class="nf">ndcg</span><span class="p">(</span><span class="n">gt_item</span><span class="p">,</span> <span class="n">pred_items</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">gt_item</span> <span class="ow">in</span> <span class="n">pred_items</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">pred_items</span><span class="p">.</span><span class="n">index</span><span class="p">(</span><span class="n">gt_item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">log2</span><span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">def</span> <span class="nf">metrics</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">,</span> <span class="n">top_k</span><span class="p">):</span>
+    <span class="n">HR</span><span class="p">,</span> <span class="n">NDCG</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">user</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">test_loader</span><span class="p">:</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">cuda</span><span class="p">()</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="n">item</span><span class="p">.</span><span class="n">cuda</span><span class="p">()</span>
+
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+        <span class="c1"># 가장 높은 top_k개 선택
+</span>        <span class="n">_</span><span class="p">,</span> <span class="n">indices</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">topk</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">top_k</span><span class="p">)</span>
+        <span class="c1"># 해당 상품 index 선택
+</span>        <span class="n">recommends</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">take</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">indices</span><span class="p">).</span><span class="n">cpu</span><span class="p">().</span><span class="n">numpy</span><span class="p">().</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="c1"># 정답값 선택
+</span>        <span class="n">gt_item</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">item</span><span class="p">()</span>
+        <span class="n">HR</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">hit</span><span class="p">(</span><span class="n">gt_item</span><span class="p">,</span> <span class="n">recommends</span><span class="p">))</span>
+        <span class="n">NDCG</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">ndcg</span><span class="p">(</span><span class="n">gt_item</span><span class="p">,</span> <span class="n">recommends</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">HR</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">NDCG</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="학습하기">학습하기</h2>
+
+<p>학습 과정에서의 <code class="language-plaintext highlighter-rouge">loss</code>, <code class="language-plaintext highlighter-rouge">HR</code>, <code class="language-plaintext highlighter-rouge">NDCG</code>를 기록하기 위해, 다음과 같이 <code class="language-plaintext highlighter-rouge">Tensorboard</code>의 command를 사용합니다.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">writer = SummaryWriter()</code>: writer 초기화</li>
+  <li><code class="language-plaintext highlighter-rouge">writer.add_scalar("data/loss", loss.item(), count)</code>: 매 count마다 loss를 기록</li>
+  <li><code class="language-plaintext highlighter-rouge">writer.add_scalar("test/HR", np.mean(HR), epoch)</code>: 매 epoch마다 HR의 평균을 기록</li>
+  <li><code class="language-plaintext highlighter-rouge">writer.add_scalar("test/NDCG", np.mean(NDCG), epoch)</code>: 매 epoch마다 NDCG의 평균을 기록</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">"__main__"</span><span class="p">:</span>
+    <span class="n">count</span><span class="p">,</span> <span class="n">best_hr</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+    <span class="n">writer</span> <span class="o">=</span> <span class="n">SummaryWriter</span><span class="p">()</span>  <span class="c1"># for visualization
+</span>    <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s">"epochs"</span><span class="p">]):</span>
+        <span class="n">model</span><span class="p">.</span><span class="n">train</span><span class="p">()</span>  <span class="c1"># Enable dropout (if have).
+</span>        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">train_loader</span><span class="p">.</span><span class="n">dataset</span><span class="p">.</span><span class="n">set_ng_sample</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">user</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">train_loader</span><span class="p">:</span>
+            <span class="n">user</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">cuda</span><span class="p">()</span>
+            <span class="n">item</span> <span class="o">=</span> <span class="n">item</span><span class="p">.</span><span class="n">cuda</span><span class="p">()</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">label</span><span class="p">.</span><span class="nb">float</span><span class="p">().</span><span class="n">cuda</span><span class="p">()</span>
+
+            <span class="c1"># gradient 초기화
+</span>            <span class="n">model</span><span class="p">.</span><span class="n">zero_grad</span><span class="p">()</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">loss_function</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+            <span class="n">loss</span><span class="p">.</span><span class="n">backward</span><span class="p">()</span>
+            <span class="n">optimizer</span><span class="p">.</span><span class="n">step</span><span class="p">()</span>
+            <span class="n">writer</span><span class="p">.</span><span class="n">add_scalar</span><span class="p">(</span><span class="s">"data/loss"</span><span class="p">,</span> <span class="n">loss</span><span class="p">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">count</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">model</span><span class="p">.</span><span class="nb">eval</span><span class="p">()</span>
+        <span class="n">HR</span><span class="p">,</span> <span class="n">NDCG</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">test_loader</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="s">"top_k"</span><span class="p">])</span>
+
+        <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">time</span><span class="p">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+        <span class="k">print</span><span class="p">(</span>
+            <span class="s">"The time elapse of epoch {:03d}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">epoch</span><span class="p">)</span>
+            <span class="o">+</span> <span class="s">" is: "</span>
+            <span class="o">+</span> <span class="n">time</span><span class="p">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">"%H: %M: %S"</span><span class="p">,</span> <span class="n">time</span><span class="p">.</span><span class="n">gmtime</span><span class="p">(</span><span class="n">elapsed_time</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">"HR: {:.3f}</span><span class="se">\t</span><span class="s">NDCG: {:.3f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">HR</span><span class="p">),</span> <span class="n">np</span><span class="p">.</span><span class="n">mean</span><span class="p">(</span><span class="n">NDCG</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="n">HR</span> <span class="o">&gt;</span> <span class="n">best_hr</span><span class="p">:</span>
+            <span class="n">best_hr</span><span class="p">,</span> <span class="n">best_ndcg</span><span class="p">,</span> <span class="n">best_epoch</span> <span class="o">=</span> <span class="n">HR</span><span class="p">,</span> <span class="n">NDCG</span><span class="p">,</span> <span class="n">epoch</span>
+            <span class="k">if</span> <span class="n">args</span><span class="p">[</span><span class="s">"out"</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">exists</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s">"model_path"</span><span class="p">]):</span>
+                    <span class="n">os</span><span class="p">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s">"model_path"</span><span class="p">])</span>
+                <span class="n">torch</span><span class="p">.</span><span class="n">save</span><span class="p">(</span>
+                    <span class="n">model</span><span class="p">,</span> <span class="s">"{}{}.pth"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s">"model_path"</span><span class="p">],</span> <span class="n">config</span><span class="p">[</span><span class="s">"model"</span><span class="p">])</span>
+                <span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span>
+        <span class="s">"End. Best epoch {:03d}: HR = {:.3f}, NDCG = {:.3f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span>
+            <span class="n">best_epoch</span><span class="p">,</span> <span class="n">best_hr</span><span class="p">,</span> <span class="n">best_ndcg</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="실험결과">실험결과</h2>
+
+<p>20 epoch 동안 학습을 한 결과, 최고 점수는 <code class="language-plaintext highlighter-rouge">HR = 0.690</code>, <code class="language-plaintext highlighter-rouge">NDCG = 0.414</code>로 관찰되었습니다. 이는 논문에 나온 결과인 <code class="language-plaintext highlighter-rouge">HR = 0.692</code>, <code class="language-plaintext highlighter-rouge">NDCG = 0.425</code>에 약간 못 미치지만, <code class="language-plaintext highlighter-rouge">initialization</code> 결과에 따라 값은 달라질 수 있으므로 대체로 구현이 잘 되었다고 생각됩니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>The time elapse of epoch 000 is: 00: 03: 12
+HR: 0.553       NDCG: 0.308
+The time elapse of epoch 001 is: 00: 03: 15
+HR: 0.610       NDCG: 0.351
+The time elapse of epoch 002 is: 00: 03: 16
+HR: 0.644       NDCG: 0.377
+The time elapse of epoch 003 is: 00: 03: 13
+HR: 0.658       NDCG: 0.386
+The time elapse of epoch 004 is: 00: 03: 14
+HR: 0.671       NDCG: 0.398
+The time elapse of epoch 005 is: 00: 03: 12
+HR: 0.672       NDCG: 0.403
+The time elapse of epoch 006 is: 00: 03: 07
+HR: 0.680       NDCG: 0.408
+The time elapse of epoch 007 is: 00: 03: 09
+HR: 0.680       NDCG: 0.407
+The time elapse of epoch 008 is: 00: 03: 08
+HR: 0.687       NDCG: 0.411
+The time elapse of epoch 009 is: 00: 03: 07
+HR: 0.687       NDCG: 0.413
+The time elapse of epoch 010 is: 00: 03: 07
+HR: 0.687       NDCG: 0.411
+The time elapse of epoch 011 is: 00: 03: 08
+HR: 0.688       NDCG: 0.415
+The time elapse of epoch 012 is: 00: 03: 07
+HR: 0.681       NDCG: 0.415
+The time elapse of epoch 013 is: 00: 03: 10
+HR: 0.689       NDCG: 0.414
+The time elapse of epoch 014 is: 00: 03: 16
+HR: 0.682       NDCG: 0.409
+The time elapse of epoch 015 is: 00: 03: 16
+HR: 0.682       NDCG: 0.413
+The time elapse of epoch 016 is: 00: 03: 14
+HR: 0.682       NDCG: 0.412
+The time elapse of epoch 017 is: 00: 03: 14
+HR: 0.684       NDCG: 0.415
+The time elapse of epoch 018 is: 00: 03: 14
+HR: 0.680       NDCG: 0.410
+The time elapse of epoch 019 is: 00: 03: 09
+HR: 0.690       NDCG: 0.414
+End. Best epoch 019: HR = 0.690, NDCG = 0.414
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/57972646/112757172-94d25700-9023-11eb-9cb0-133c284b487f.png" alt="image" /></p>
+
+<h2 id="참고자료">참고자료</h2>
+
+<p>[1] <a href="https://github.com/doheelab/NCF">실습 코드 링크</a></p>
+
+<p>[2] <a href="https://arxiv.org/abs/1708.05031">Neural Collaborative Filtering</a></p>
+
+<p>[3] <a href="https://github.com/guoyang9/NCF">A pytorch GPU implementation of He et al.</a></p>
+
+<p>[4] <a href="https://files.grouplens.org/datasets/movielens/ml-1m-README.txt">movielens dataset</a></p>
+
+:ET

@@ -1,0 +1,818 @@
+<!doctype html>
+<!--
+  Minimal Mistakes Jekyll Theme 4.22.0 by Michael Rose
+  Copyright 2013-2020 Michael Rose - mademistakes.com | @mmistakes
+  Free for personal and commercial use under the MIT license
+  https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE
+-->
+<html lang="en" class="no-js">
+  <head>
+    <meta charset="utf-8">
+
+<!-- begin _includes/seo.html --><title>[JavaScript] 이진 트리(Binary Tree)와 트리 순회(Tree Traversal) - Dohee’s ML Lab</title>
+<meta name="description" content="이번 글에서는 이진 트리(Binary Tree)와 트리 순회(Tree Traversal)에 대해서 알아보고, JavaScript를 이용해서 구현해보겠습니다.">
+
+
+  <meta name="author" content="Dohee Jung">
+  
+  <meta property="article:author" content="Dohee Jung">
+  
+
+
+<meta property="og:type" content="article">
+<meta property="og:locale" content="en_US">
+<meta property="og:site_name" content="Dohee's ML Lab">
+<meta property="og:title" content="[JavaScript] 이진 트리(Binary Tree)와 트리 순회(Tree Traversal)">
+<meta property="og:url" content="https://doheelab.github.io/algorithm/binary_tree/">
+
+
+  <meta property="og:description" content="이번 글에서는 이진 트리(Binary Tree)와 트리 순회(Tree Traversal)에 대해서 알아보고, JavaScript를 이용해서 구현해보겠습니다.">
+
+
+
+
+
+
+
+  <meta property="article:published_time" content="2021-03-25T22:00:00+09:00">
+
+
+
+
+
+  
+
+  
+
+
+<link rel="canonical" href="https://doheelab.github.io/algorithm/binary_tree/">
+
+
+
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    
+      "@type": "Person",
+      "name": "Dohee",
+      "url": "https://doheelab.github.io/"
+    
+  }
+</script>
+
+
+
+
+
+
+<!-- end _includes/seo.html -->
+
+
+
+  <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="Dohee's ML Lab Feed">
+
+
+<!-- https://t.co/dKP3o1e -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+  document.documentElement.className = document.documentElement.className.replace(/\bno-js\b/g, '') + ' js ';
+</script>
+
+<!-- For all browsers -->
+<link rel="stylesheet" href="/assets/css/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5/css/all.min.css">
+
+<!--[if IE]>
+  <style>
+    /* old IE unsupported flexbox fixes */
+    .greedy-nav .site-title {
+      padding-right: 3em;
+    }
+    .greedy-nav button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+    }
+  </style>
+<![endif]-->
+
+
+    <!-- start custom head snippets -->
+
+<!-- insert favicons. use https://realfavicongenerator.net/ -->
+
+<!-- end custom head snippets -->
+
+    <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      TeX: {
+        equationNumbers: {
+          autoNumber: "AMS"
+        }
+      },
+      tex2jax: {
+      inlineMath: [ ['$', '$'] ],
+      displayMath: [ ['$$', '$$'] ],
+      processEscapes: true,
+    }
+  });
+  MathJax.Hub.Register.MessageHook("Math Processing Error",function (message) {
+        alert("Math Processing Error: "+message[1]);
+      });
+  MathJax.Hub.Register.MessageHook("TeX Jax - parse error",function (message) {
+        alert("Math Processing Error: "+message[1]);
+      });
+</script>
+<script
+  type="text/javascript"
+  async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"
+></script>
+
+  </head>
+  <body class="layout--single">
+    <nav class="skip-links">
+  <h2 class="screen-reader-text">Skip links</h2>
+  <ul>
+    <li><a href="#site-nav" class="screen-reader-shortcut">Skip to primary navigation</a></li>
+    <li><a href="#main" class="screen-reader-shortcut">Skip to content</a></li>
+    <li><a href="#footer" class="screen-reader-shortcut">Skip to footer</a></li>
+  </ul>
+</nav>
+
+    <!--[if lt IE 9]>
+<div class="notice--danger align-center" style="margin: 0;">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience.</div>
+<![endif]-->
+
+    
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        
+        <a class="site-title" href="/">
+          Dohee's ML Lab
+          
+        </a>
+        <ul class="visible-links"><li class="masthead__menu-item">
+              <a href="/categories/">Categories</a>
+            </li><li class="masthead__menu-item">
+              <a href="/tags/">Tags</a>
+            </li></ul>
+        
+        <button class="greedy-nav__toggle hidden" type="button">
+          <span class="visually-hidden">Toggle menu</span>
+          <div class="navicon"></div>
+        </button>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+
+
+    <div class="initial-content">
+      
+
+
+
+<div id="main" role="main">
+  
+
+
+  <article class="page" itemscope itemtype="https://schema.org/CreativeWork">
+    <meta itemprop="headline" content="[JavaScript] 이진 트리(Binary Tree)와 트리 순회(Tree Traversal)">
+    <meta itemprop="description" content="이번 글에서는 이진 트리(Binary Tree)와 트리 순회(Tree Traversal)에 대해서 알아보고, JavaScript를 이용해서 구현해보겠습니다.">
+    <meta itemprop="datePublished" content="2021-03-25T22:00:00+09:00">
+    
+
+    <div class="page__inner-wrap">
+      
+        <header>
+          <h1 id="page-title" class="page__title" itemprop="headline">[JavaScript] 이진 트리(Binary Tree)와 트리 순회(Tree Traversal)
+</h1>
+          
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          3 minute read
+        
+      </span>
+    
+  </p>
+
+
+        </header>
+      
+
+      <section class="page__content" itemprop="text">
+        
+        <p>이번 글에서는 <strong>이진 트리(Binary Tree)</strong>와 <strong>트리 순회(Tree Traversal)</strong>에 대해서 알아보고, <code class="language-plaintext highlighter-rouge">JavaScript</code>를 이용해서 구현해보겠습니다.</p>
+
+<h2 id="그래프graph">그래프(Graph)</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">노드(node)</code>들과 노드들 사이를 연결하는 <code class="language-plaintext highlighter-rouge">간선(edge)</code>으로 구성되어 있습니다.</li>
+  <li>그래프는 <code class="language-plaintext highlighter-rouge">root node</code>가 하나 있고, 각 노드에는 <code class="language-plaintext highlighter-rouge">child node</code>가 연결되어 있습니다.</li>
+</ul>
+
+<h2 id="트리tree">트리(Tree)</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">트리</code>는 그래프의 일종으로, <code class="language-plaintext highlighter-rouge">cycle</code>이 없고, <strong>서로 다른 두 노드를 잇는 길이 하나 뿐인 그래프</strong>를 트리라고 합니다.</li>
+  <li>노드가 <code class="language-plaintext highlighter-rouge">N개</code>인 트리는 항상 <code class="language-plaintext highlighter-rouge">N-1개</code>의 간선을 가집니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">child</code>의 갯수가 2개로 제한되면 <strong>이진 트리(Binary Tree)</strong>라고 합니다.</li>
+</ul>
+
+<h2 id="이진-트리의-종류">이진 트리의 종류</h2>
+
+<ul>
+  <li><strong>Full Binary Tree</strong>: 각각의 노드가 <code class="language-plaintext highlighter-rouge">child</code>가 0개 혹은 2개</li>
+  <li><strong>Complete Binary Tree</strong>: 왼쪽 위에서부터 가득 차 있는 트리</li>
+  <li><strong>Perfect Binary Tree</strong>: 모든 내부 노드가 2개의 <code class="language-plaintext highlighter-rouge">children</code>을 가지고 있으며, <code class="language-plaintext highlighter-rouge">leaf node</code>의 <code class="language-plaintext highlighter-rouge">level</code>이 같은 트리</li>
+</ul>
+
+<h2 id="이진-트리-순회-알고리즘binary-tree-traversal">이진 트리 순회 알고리즘(Binary Tree Traversal)</h2>
+
+<p><strong>이진 트리 순회 알고리즘</strong>은 트리에 저장된 모든 값을 중복이나 빠짐없이 살펴보고 싶을 때 사용합니다. 이진 트리의 순회 방법 중 <strong>깊이 우선 순회 방법(Depth First Traversal)</strong>으로는 <code class="language-plaintext highlighter-rouge">전위 순회(Pre-order traversal)</code>, <code class="language-plaintext highlighter-rouge">정위 순회(In-order traversal)</code>, <code class="language-plaintext highlighter-rouge">후위 순회(Post-order traversal)</code>가 있으며, <strong>너비 우선 순회 방법(Breadth First Traversal)</strong>으로는 <code class="language-plaintext highlighter-rouge">레벨 순회</code>가 있습니다.</p>
+
+<div style="text-align:center"><img src="https://user-images.githubusercontent.com/71360682/112273731-05464480-8cc1-11eb-9316-831b34246be2.png" /></div>
+
+<div align="center">
+  <i>Binary Tree 1 (from 코드없는프로그래밍)</i>
+</div>
+<p><br /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Pre-order</code>: <strong>N</strong>LR</li>
+  <li><code class="language-plaintext highlighter-rouge">In-order</code>: L<strong>N</strong>R</li>
+  <li><code class="language-plaintext highlighter-rouge">Post-order</code>: LR<strong>N</strong></li>
+  <li><code class="language-plaintext highlighter-rouge">Level-order</code>: <strong>N</strong>LR</li>
+</ul>
+
+<div style="text-align:center"><img src="https://user-images.githubusercontent.com/71360682/112273743-0a0af880-8cc1-11eb-9953-1bf855e4dd17.png" /></div>
+
+<div align="center">
+  <i>Binary Tree 2 (from 코드없는프로그래밍)</i>
+</div>
+<p><br /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Pre-order</code>: 1 2 4 5 3 6 7</li>
+  <li><code class="language-plaintext highlighter-rouge">In-order</code>: 4 2 5 1 6 3 7</li>
+  <li><code class="language-plaintext highlighter-rouge">Post-order</code>: 4 5 2 6 7 3 1</li>
+  <li><code class="language-plaintext highlighter-rouge">Level-order</code>: 1 2 3 4 5 6 7</li>
+</ul>
+
+<h2 id="이진-트리-순회-알고리즘의-구현">이진 트리 순회 알고리즘의 구현</h2>
+
+<h2 id="재귀적recursive-방법">재귀적(Recursive) 방법</h2>
+
+<p>이진 트리 순회 방법 중 <code class="language-plaintext highlighter-rouge">깊이 우선 순회 방법(BFS)</code>은 <strong>재귀적(Recursive)</strong> 혹은 <strong>반복적(Iterative)</strong> 방법으로 구현할 수 있습니다. 먼저 재귀적인 방법으로 구현해보겠습니다.</p>
+
+<h3 id="트리-정의하기">트리 정의하기</h3>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nx">Tree</span> <span class="p">{</span>
+  <span class="kd">constructor</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">val</span> <span class="o">=</span> <span class="nx">val</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">leftNode</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">rightNode</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nx">setVal</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">val</span> <span class="o">=</span> <span class="nx">val</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nx">setLeft</span><span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">leftNode</span> <span class="o">=</span> <span class="nx">node</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nx">setRight</span><span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">rightNode</span> <span class="o">=</span> <span class="nx">node</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="전위-순회pre-order">전위 순회(Pre-order)</h3>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">recursivePreOrder</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">val</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">recursivePreOrder</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">leftNode</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">recursivePreOrder</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">rightNode</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h3 id="정위-순회in-order">정위 순회(In-order)</h3>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">recursiveInOrder</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">recursiveInOrder</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">leftNode</span><span class="p">);</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">val</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">recursiveInOrder</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">rightNode</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h3 id="후위-순회post-order">후위 순회(Post-order)</h3>
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">recursivePostOrder</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">recursivePostOrder</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">leftNode</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">recursivePostOrder</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">rightNode</span><span class="p">);</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">val</span><span class="p">);</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h2 id="반복적iterative-방법">반복적(Iterative) 방법</h2>
+
+<p>반복적인 방법으로 구현할 때는 <strong>스택(stack)</strong>을 사용합니다. 먼저 그림을 살펴보고, 이를 코드로 구현하겠습니다.</p>
+
+<h3 id="전위-순회pre-order-1">전위 순회(Pre-order)</h3>
+
+<div style="text-align:center"><img src="https://camo.githubusercontent.com/6ca60eb809d07ee410ae860bbdbc3c92032b7853142dea79d5970c1847433bf1/687474703a2f2f3130382e36312e3131392e31322f77702d636f6e74656e742f75706c6f6164732f323031342f31302f62696e6172792d747265652d312d7072652d6f726465722d736d616c6c2e676966" /></div>
+
+<div align="center">
+  <i>Pre-order traversal from http://ejklike.github.io/</i>
+</div>
+<p><br /></p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">iterativePreOrder</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">node</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kd">let</span> <span class="nx">stack</span> <span class="o">=</span> <span class="p">[];</span>
+  <span class="nx">stack</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">node</span><span class="p">);</span>
+  <span class="k">while</span> <span class="p">(</span><span class="nx">stack</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">pop_node</span> <span class="o">=</span> <span class="nx">stack</span><span class="p">.</span><span class="nx">pop</span><span class="p">();</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">pop_node</span><span class="p">.</span><span class="nx">val</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">pop_node</span><span class="p">.</span><span class="nx">right</span><span class="p">)</span> <span class="nx">stack</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">pop_node</span><span class="p">.</span><span class="nx">right</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">pop_node</span><span class="p">.</span><span class="nx">left</span><span class="p">)</span> <span class="nx">stack</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">pop_node</span><span class="p">.</span><span class="nx">left</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<div align="center">
+  <i>Pre-order traversal</i>
+</div>
+<p><br /></p>
+
+<div style="text-align:center"><img src="https://camo.githubusercontent.com/7041073b508c5c7768c8bacebfe9cb2d0ee994070912a58bbbc9835cdae85ed0/687474703a2f2f3130382e36312e3131392e31322f77702d636f6e74656e742f75706c6f6164732f323031342f31302f62696e6172792d747265652d312d6f726465722d736d616c6c2e676966" /></div>
+
+<div align="center">
+  <i>In-order traversal from http://ejklike.github.io/</i>
+</div>
+<p><br /></p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">iterativeInOrder</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">node</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kd">let</span> <span class="nx">crnt_node</span> <span class="o">=</span> <span class="nx">node</span><span class="p">;</span>
+  <span class="kd">let</span> <span class="nx">stack</span> <span class="o">=</span> <span class="p">[];</span>
+  <span class="k">while</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">crnt_node</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">stack</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">crnt_node</span><span class="p">);</span>
+      <span class="nx">crnt_node</span> <span class="o">=</span> <span class="nx">crnt_node</span><span class="p">.</span><span class="nx">left</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">stack</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">crnt_node</span> <span class="o">=</span> <span class="nx">stack</span><span class="p">.</span><span class="nx">pop</span><span class="p">();</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">crnt_node</span><span class="p">.</span><span class="nx">val</span><span class="p">);</span>
+      <span class="nx">crnt_node</span> <span class="o">=</span> <span class="nx">crnt_node</span><span class="p">.</span><span class="nx">right</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<div align="center">
+  <i>In-order traversal</i>
+</div>
+<p><br /></p>
+
+<div style="text-align:center"><img src="https://camo.githubusercontent.com/6ca60eb809d07ee410ae860bbdbc3c92032b7853142dea79d5970c1847433bf1/687474703a2f2f3130382e36312e3131392e31322f77702d636f6e74656e742f75706c6f6164732f323031342f31302f62696e6172792d747265652d312d7072652d6f726465722d736d616c6c2e676966" /></div>
+
+<div align="center">
+  <i>Post-order traversal from http://ejklike.github.io/</i>
+</div>
+<p><br /></p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">iterativePostOrder</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">node</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kd">let</span> <span class="nx">crnt_node</span> <span class="o">=</span> <span class="nx">node</span><span class="p">;</span>
+  <span class="kd">let</span> <span class="nx">stack</span> <span class="o">=</span> <span class="p">[];</span>
+  <span class="kd">let</span> <span class="nx">last_visit_node</span> <span class="o">=</span> <span class="kc">null</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">crnt_node</span> <span class="o">!=</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">stack</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">crnt_node</span><span class="p">);</span>
+      <span class="nx">crnt_node</span> <span class="o">=</span> <span class="nx">crnt_node</span><span class="p">.</span><span class="nx">left</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">stack</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">peek_node</span> <span class="o">=</span> <span class="nx">stack</span><span class="p">[</span><span class="nx">stack</span><span class="p">.</span><span class="nx">length</span> <span class="o">-</span> <span class="mi">1</span><span class="p">];</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">peek_node</span><span class="p">.</span><span class="nx">right</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">last_visit_node</span> <span class="o">!=</span> <span class="nx">peek_node</span><span class="p">.</span><span class="nx">right</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">crnt_node</span> <span class="o">=</span> <span class="nx">peek_node</span><span class="p">.</span><span class="nx">right</span><span class="p">;</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">peek_node</span><span class="p">.</span><span class="nx">val</span><span class="p">);</span>
+        <span class="nx">last_visit_node</span> <span class="o">=</span> <span class="nx">stack</span><span class="p">.</span><span class="nx">pop</span><span class="p">();</span>
+      <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="k">break</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<div align="center">
+  <i>Post-order traversal</i>
+</div>
+<p><br /></p>
+
+<h2 id="너비-우선-순회-방법bfs">너비 우선 순회 방법(BFS)</h2>
+
+<p>이진 트리의 <code class="language-plaintext highlighter-rouge">너비 우선 순회</code>에는 <strong>레벨 순회</strong>가 있습니다. <strong>큐(queue)</strong> 자료구조를 사용하면 간단히 구현할 수 있습니다.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">levelOrderTraversal</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">node</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">node</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kd">let</span> <span class="nx">queue</span> <span class="o">=</span> <span class="p">[];</span>
+  <span class="nx">queue</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">node</span><span class="p">);</span>
+  <span class="k">while</span> <span class="p">(</span><span class="nx">queue</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">let</span> <span class="nx">pop_node</span> <span class="o">=</span> <span class="nx">queue</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">pop_node</span><span class="p">.</span><span class="nx">val</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">pop_node</span><span class="p">.</span><span class="nx">left</span><span class="p">)</span> <span class="nx">queue</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">pop_node</span><span class="p">.</span><span class="nx">left</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">pop_node</span><span class="p">.</span><span class="nx">right</span><span class="p">)</span> <span class="nx">queue</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">pop_node</span><span class="p">.</span><span class="nx">right</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="nx">levelOrderTraversal</span><span class="p">(</span><span class="nx">root</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="문제풀이-1-path-sum-ii-leetcode">문제풀이 1. Path Sum II <a href="https://leetcode.com/problems/path-sum-ii/description/">(LeetCode)</a></h2>
+
+<p>Given the <code class="language-plaintext highlighter-rouge">root</code> of a binary tree and an integer <code class="language-plaintext highlighter-rouge">targetSum</code>, return all <strong>root-to-leaf</strong> paths where each path’s sum equals <code class="language-plaintext highlighter-rouge">targetSum</code>.</p>
+
+<p>(해석) 루트 노드와 정수 <code class="language-plaintext highlighter-rouge">targetSum</code>이 주여질 때, 루트 노드에서 <code class="language-plaintext highlighter-rouge">leaf</code>까지의 <code class="language-plaintext highlighter-rouge">path</code>가 지나는 노드의 합이 <code class="language-plaintext highlighter-rouge">targetSum</code>이 되도록 하는 모든 <code class="language-plaintext highlighter-rouge">path</code>를 찾아라.</p>
+
+<h3 id="solution">Solution</h3>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">var</span> <span class="nx">pathSum</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">root</span><span class="p">,</span> <span class="nx">targetSum</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">root</span> <span class="o">==</span> <span class="kc">null</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[];</span>
+  <span class="p">}</span>
+  <span class="kd">let</span> <span class="nx">result</span> <span class="o">=</span> <span class="p">[];</span>
+
+  <span class="kd">var</span> <span class="nx">repeat</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">node</span><span class="p">,</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">residual</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">node</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+    <span class="nx">path</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">val</span><span class="p">);</span>
+    <span class="nx">residual</span> <span class="o">-=</span> <span class="nx">node</span><span class="p">.</span><span class="nx">val</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">residual</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">node</span><span class="p">.</span><span class="nx">left</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="nx">node</span><span class="p">.</span><span class="nx">right</span><span class="p">)</span> <span class="nx">result</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nb">Array</span><span class="p">.</span><span class="k">from</span><span class="p">(</span><span class="nx">path</span><span class="p">));</span>
+    <span class="nx">repeat</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">left</span><span class="p">,</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">residual</span><span class="p">);</span>
+    <span class="nx">repeat</span><span class="p">(</span><span class="nx">node</span><span class="p">.</span><span class="nx">right</span><span class="p">,</span> <span class="nx">path</span><span class="p">,</span> <span class="nx">residual</span><span class="p">);</span>
+    <span class="nx">path</span><span class="p">.</span><span class="nx">pop</span><span class="p">();</span>
+  <span class="p">};</span>
+  <span class="nx">repeat</span><span class="p">(</span><span class="nx">root</span><span class="p">,</span> <span class="p">[],</span> <span class="nx">targetSum</span><span class="p">);</span>
+  <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<h2 id="관련문항-leetcode">관련문항 (LeetCode)</h2>
+
+<p><a href="https://leetcode.com/problems/path-sum-ii/description/">Path Sum II</a></p>
+
+<p><a href="https://leetcode.com/problems/binary-tree-inorder-traversal/">Binary Tree Inorder Traversal</a></p>
+
+<h2 id="참고자료">참고자료</h2>
+
+<p>[1] <a href="https://laptrinhx.com/inorder-preorder-postorder-traversal-of-binary-tree-3322436720/">Inorder Preorder Postorder Traversal of Binary Tree</a></p>
+
+<p>[2] <a href="https://gogomalibu.tistory.com/55">[자료구조] Javascript로 Tree와 Tree 순회 구현하기</a></p>
+
+<p>[3] <a href="https://www.youtube.com/watch?v=bOZhvOc5xlQ&amp;list=PLDV-cCQnUlIaTA41swrZwgH4mX7iPxLH4&amp;index=1">코딩테스트, 기초, 트리, Tree 소개</a></p>
+
+<p>[4] <a href="http://ejklike.github.io/2018/01/09/traversing-a-binary-tree-2.html">파이썬을 사용한 이진 트리와 순회 알고리즘 구현 (2)</a></p>
+
+<p>[5] <a href="https://baffinlee.com/leetcode-javascript/problem/path-sum-ii.html">113. Path Sum II</a></p>
+
+        
+      </section>
+
+      <footer class="page__meta">
+        
+        
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-tags" aria-hidden="true"></i> Tags: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/tags/#algorithm" class="page__taxonomy-item" rel="tag">algorithm</a><span class="sep">, </span>
+    
+      <a href="/tags/#binary-tree" class="page__taxonomy-item" rel="tag">binary-tree</a><span class="sep">, </span>
+    
+      <a href="/tags/#data-structure" class="page__taxonomy-item" rel="tag">data-structure</a><span class="sep">, </span>
+    
+      <a href="/tags/#javascript" class="page__taxonomy-item" rel="tag">javascript</a><span class="sep">, </span>
+    
+      <a href="/tags/#tree" class="page__taxonomy-item" rel="tag">tree</a>
+    
+    </span>
+  </p>
+
+
+
+
+  
+
+
+  
+
+  <p class="page__taxonomy">
+    <strong><i class="fas fa-fw fa-folder-open" aria-hidden="true"></i> Categories: </strong>
+    <span itemprop="keywords">
+    
+      <a href="/categories/#algorithm" class="page__taxonomy-item" rel="tag">algorithm</a>
+    
+    </span>
+  </p>
+
+
+        
+  <p class="page__date"><strong><i class="fas fa-fw fa-calendar-alt" aria-hidden="true"></i> Updated:</strong> <time datetime="2021-03-25T22:00:00+09:00">March 25, 2021</time></p>
+
+
+      </footer>
+
+      <section class="page__share">
+  
+
+  <a href="https://twitter.com/intent/tweet?text=%5BJavaScript%5D+%EC%9D%B4%EC%A7%84+%ED%8A%B8%EB%A6%AC%28Binary+Tree%29%EC%99%80+%ED%8A%B8%EB%A6%AC+%EC%88%9C%ED%9A%8C%28Tree+Traversal%29%20https%3A%2F%2Fdoheelab.github.io%2Falgorithm%2Fbinary_tree%2F" class="btn btn--twitter" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Twitter"><i class="fab fa-fw fa-twitter" aria-hidden="true"></i><span> Twitter</span></a>
+
+  <a href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdoheelab.github.io%2Falgorithm%2Fbinary_tree%2F" class="btn btn--facebook" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on Facebook"><i class="fab fa-fw fa-facebook" aria-hidden="true"></i><span> Facebook</span></a>
+
+  <a href="https://www.linkedin.com/shareArticle?mini=true&url=https%3A%2F%2Fdoheelab.github.io%2Falgorithm%2Fbinary_tree%2F" class="btn btn--linkedin" onclick="window.open(this.href, 'window', 'left=20,top=20,width=500,height=500,toolbar=1,resizable=0'); return false;" title="Share on LinkedIn"><i class="fab fa-fw fa-linkedin" aria-hidden="true"></i><span> LinkedIn</span></a>
+</section>
+
+
+      
+  <nav class="pagination">
+    
+      <a href="/pandas/parse_json/" class="pagination--pager" title="pandas를 이용하여 json 데이터 파싱하기
+">Previous</a>
+    
+    
+      <a href="/recommender-system/ncf_mlp/" class="pagination--pager" title="[Pytorch] Neural Collaborative Filtering - MLP 실험
+">Next</a>
+    
+  </nav>
+
+    </div>
+
+    
+  </article>
+
+  
+  
+    <div class="page__related">
+      <h4 class="page__related-title">You May Also Enjoy</h4>
+      <div class="grid__wrapper">
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/web-development/jwt/" rel="permalink">JWT(JSON Web Token)를 활용한 권한 부여(authentication)
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">JWT는 특정 유저에게 권한 부여(authorization)를 하기 위한 방법 중 하나입니다. 
+서버는 HTTP 요청을 받았을 때, 요청한 유저가 이미 인증(ID와 패스워드가 맞는 지 확인, authentication)을 한 유저인지 (JWT를 통해) 확인 후 알맞은 권한을 부여합...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/recommender-system/ncf_mf/" rel="permalink">Pytorch를 이용한 협업 필터링(Matrix Factorization) 구현
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          5 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">이번 글에서는 Pytorch와 MovieLens 데이터셋을 이용하여, 협업필터링을 구현하겠습니다. 협업 필터링의 여러 기법 중에서 Matrix Factorization을 사용하겠습니다. 마지막으로 Neural Collaborative Filtering 논문에서 제안한 General...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/recommender-system/ncf_mlp/" rel="permalink">[Pytorch] Neural Collaborative Filtering - MLP 실험
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          8 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">이번 글에서는 Pytorch를 이용하여, Neural Collaborative Filtering논문의 MLP(Multi Layer Perceptron) 파트의 실험을 구현해보겠습니다. 참고한 코드는 
+hexiangnan의 PyTorch 구현 코드입니다. 실습을 위한 코드는 링크에서...</p>
+  </article>
+</div>
+
+        
+          
+
+
+
+<div class="grid__item">
+  <article class="archive__item" itemscope itemtype="https://schema.org/CreativeWork">
+    
+    <h2 class="archive__item-title no_toc" itemprop="headline">
+      
+        <a href="/pandas/parse_json/" rel="permalink">pandas를 이용하여 json 데이터 파싱하기
+</a>
+      
+    </h2>
+    
+
+  <p class="page__meta">
+    
+
+    
+
+    
+      
+      
+
+      <span class="page__meta-readtime">
+        <i class="far fa-clock" aria-hidden="true"></i>
+        
+          2 minute read
+        
+      </span>
+    
+  </p>
+
+
+    <p class="archive__item-excerpt" itemprop="description">이 글에서는 pandas를 이용하여 json 데이터를 분석하기 좋은 형태로 변환하는 방법에 대해 설명합니다.
+</p>
+  </article>
+</div>
+
+        
+      </div>
+    </div>
+  
+  
+</div>
+
+    </div>
+
+    
+
+    <div id="footer" class="page__footer">
+      <footer>
+        <!-- start custom footer snippets -->
+
+<!-- end custom footer snippets -->
+        <div class="page__footer-follow">
+  <ul class="social-icons">
+    
+
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+
+    
+      <li><a href="/feed.xml"><i class="fas fa-fw fa-rss-square" aria-hidden="true"></i> Feed</a></li>
+    
+  </ul>
+</div>
+
+<div class="page__footer-copyright">&copy; 2021 Dohee. Powered by <a href="https://jekyllrb.com" rel="nofollow">Jekyll</a> &amp; <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel="nofollow">Minimal Mistakes</a>.</div>
+
+      </footer>
+    </div>
+
+    
+  <script src="/assets/js/main.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+  </body>
+</html>

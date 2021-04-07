@@ -1,0 +1,2 @@
+I"<p>이번 글에서는 <strong>Pytorch</strong>와 <strong>MovieLens</strong> 데이터셋을 이용하여, 협업필터링을 구현하겠습니다. 협업 필터링의 여러 기법 중에서 <strong>Matrix Factorization</strong>을 사용하겠습니다. 마지막으로 <code class="language-plaintext highlighter-rouge">Neural Collaborative Filtering</code> 논문에서 제안한 Generalized Matrix Factorization 모델에 대해서 알아보고, 기존 알고리즘과의 성능 비교 실험을 해보겠습니다.</p>
+:ET

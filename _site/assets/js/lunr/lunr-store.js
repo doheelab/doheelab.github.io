@@ -18,7 +18,7 @@ var store = [{
         "teaser": null
       },{
         "title": "케라스(Keras)로 Stacked LSTM 구현하기",
-        "excerpt":"소개 이 글에서 다룰 내용은 Keras를 활용하여 Stacked LSTM 구하고 time series prediction task에 적용해보는 것입니다. Stacked LSTM을 사용하는 이유 Stacked LSTM은 hidden layer에 여러개의 LSTM 층을 쌓아서, 여러개의 memory cell을 이용할 수 있게 합니다. 일반적으로 neural network 에서 모델의 성능을 향상시키기 위해, hidden lyaer의 노드의 갯수를 과도하게 증가시키는 것보다는...","categories": ["machine-learning"],
+        "excerpt":"소개 이 글에서는 Keras를 활용하여 Stacked LSTM 구현을 구현하고 time series prediction에 적용하겠습니다. Stacked LSTM을 사용하는 이유 보통 neural network 에서 모델의 성능을 향상시키기 위해 hidden lyaer의 노드 갯수를 과도하게 증가시키는 것보다, 층을 깊게 쌓는 것이 더욱 효울적인 것으로 알려져 있습니다. Stacked LSTM은 LSTM이 더 복잡한 task를 해결할 수 있도록,...","categories": ["machine-learning"],
         "tags": ["time-series-prediction","neural-network","machine-learning","deep-learning","keras","lstm","stacked-lstm"],
         "url": "/machine-learning/TimeSeries2/",
         "teaser": null
@@ -45,5 +45,29 @@ var store = [{
         "excerpt":"이 글에서는 pandas를 이용하여 json 데이터를 분석하기 좋은 형태로 변환하는 방법에 대해 설명합니다. 데이터의 출처는 UCSD Amazon Product Dataset이고, Amazon의 Data Scientist인 Eugene Yan의 글을 참고하였습니다. 데이터 소개 본 글에서 사용할 상품 데이터의 형태는 다음과 같습니다. { \"asin\": \"0000031852\", \"title\": \"Girls Ballet Tutu Zebra Hot Pink\", \"price\": 3.17, \"imUrl\": \"http://ecx.images-amazon.com/images/I/51fAmVkTbyL._SY300_.jpg\",...","categories": ["pandas"],
         "tags": ["pandas","json","parsing","preprocessing"],
         "url": "/pandas/parse_json/",
+        "teaser": null
+      },{
+        "title": "[JavaScript] 이진 트리(Binary Tree)와 트리 순회(Tree Traversal)",
+        "excerpt":"이번 글에서는 이진 트리(Binary Tree)와 트리 순회(Tree Traversal)에 대해서 알아보고, JavaScript를 이용해서 구현해보겠습니다. 그래프(Graph) 노드(node)들과 노드들 사이를 연결하는 간선(edge)으로 구성되어 있습니다. 그래프는 root node가 하나 있고, 각 노드에는 child node가 연결되어 있습니다. 트리(Tree) 트리는 그래프의 일종으로, cycle이 없고, 서로 다른 두 노드를 잇는 길이 하나 뿐인 그래프를 트리라고 합니다. 노드가...","categories": ["algorithm"],
+        "tags": ["algorithm","data-structure","javascript","tree","binary-tree"],
+        "url": "/algorithm/binary_tree/",
+        "teaser": null
+      },{
+        "title": "[Pytorch] Neural Collaborative Filtering - MLP 실험",
+        "excerpt":"이번 글에서는 Pytorch를 이용하여, Neural Collaborative Filtering논문의 MLP(Multi Layer Perceptron) 파트의 실험을 구현해보겠습니다. 참고한 코드는 hexiangnan의 PyTorch 구현 코드입니다. 실습을 위한 코드는 링크에서 확인하실 수 있습니다. 학습 데이터 저희가 사용할 테이터는 MovieLens 1 Million (ml-1m)입니다. 데이터에 대한 자세한 설명은 링크에서 확인하실 수 있습니다. 이 데이터는 6000명의 유저가 4000개의 영화에 대해서...","categories": ["recommender-system"],
+        "tags": ["recommender-system","machine-learning","pytorch","tensorboard","collaborative-filtering","mlp","neural-network"],
+        "url": "/recommender-system/ncf_mlp/",
+        "teaser": null
+      },{
+        "title": "Pytorch를 이용한 협업 필터링(Matrix Factorization) 구현",
+        "excerpt":"이번 글에서는 Pytorch와 MovieLens 데이터셋을 이용하여, 협업필터링을 구현하겠습니다. 협업 필터링의 여러 기법 중에서 Matrix Factorization을 사용하겠습니다. 마지막으로 Neural Collaborative Filtering 논문에서 제안한 Generalized Matrix Factorization 모델에 대해서 알아보고, 기존 알고리즘과의 성능 비교 실험을 해보겠습니다. 1. Matrix Factorization 소개 유저 벡터($p_u$)와 아이템 벡터($p_i$)가 주어졌을 때, 유저와 아이템의 상호작용(interaction)을 다음과 같이 내적으로...","categories": ["recommender-system"],
+        "tags": ["recommender-system","machine-learning","pytorch","tensorboard","collaborative-filtering","mlp","neural-network","matrix-factorization"],
+        "url": "/recommender-system/ncf_mf/",
+        "teaser": null
+      },{
+        "title": "JWT(JSON Web Token)를 활용한 권한 부여(authentication)",
+        "excerpt":"JWT는 특정 유저에게 권한 부여(authorization)를 하기 위한 방법 중 하나입니다. 서버는 HTTP 요청을 받았을 때, 요청한 유저가 이미 인증(ID와 패스워드가 맞는 지 확인, authentication)을 한 유저인지 (JWT를 통해) 확인 후 알맞은 권한을 부여합니다. 세션(session)을 통한 권한 부여 권한 부여(authorization)을 위한 가장 일반적은 방법은 세션(session)을 통한 방법입니다. 서버는 인증 과정에서 유저의...","categories": ["web-development"],
+        "tags": ["jwt","json-web-token","authentication","authorization","web-development","server","client","security"],
+        "url": "/web-development/jwt/",
         "teaser": null
       }]

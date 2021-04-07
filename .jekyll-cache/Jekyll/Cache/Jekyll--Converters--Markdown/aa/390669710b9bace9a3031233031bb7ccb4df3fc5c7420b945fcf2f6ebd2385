@@ -1,4 +1,4 @@
-I"[<p>블로그 글 “<a href="https://www.mariofilho.com/how-to-use-neural-networks-to-forecast-multiple-steps-of-time-series/">How To Use Neural Networks to Forecast Multiple Steps of a Time Series</a>“을 참고하여 작성하였습니다.</p>
+I"�\<p>블로그 글 “<a href="https://www.mariofilho.com/how-to-use-neural-networks-to-forecast-multiple-steps-of-time-series/">How To Use Neural Networks to Forecast Multiple Steps of a Time Series</a>“을 참고하여 작성하였습니다.</p>
 
 <p>이 글에서 다룰 내용은 시계열 데이터(상품 구매량 데이터)를 활용하여 현재로부터 1, 2, 3주 미래의 구매량을 예측하는 것입니다.</p>
 
@@ -192,4 +192,10 @@ Epoch 20/20
 <p><img src="https://user-images.githubusercontent.com/57972646/80660994-56a57e00-8ac8-11ea-85ac-051a34094497.png" alt="image" /></p>
 
 <p><img src="https://user-images.githubusercontent.com/57972646/80661043-73da4c80-8ac8-11ea-8c78-e1b112c941c9.png" alt="image" /></p>
+
+<h2 id="참고자료">참고자료</h2>
+
+<p>[1] <a href="https://buomsoo-kim.github.io/keras/2019/07/29/Easy-deep-learning-with-Keras-20.md/"># 케라스와 함께하는 쉬운 딥러닝 (20) - 순환형 신경망(RNN) 모델 만들기 3</a></p>
+
+<p>[2] <a href="https://archive.ics.uci.edu/ml/datasets/Sales_Transactions_Dataset_Weekly">Sales_Transactions_Dataset_Weekly Data Set</a></p>
 :ET

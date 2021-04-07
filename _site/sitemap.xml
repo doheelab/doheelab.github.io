@@ -2,6 +2,22 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     
     <url>
+        <loc>https://doheelab.github.io/web-development/jwt/</loc>
+    </url>
+    
+    <url>
+        <loc>https://doheelab.github.io/recommender-system/ncf_mf/</loc>
+    </url>
+    
+    <url>
+        <loc>https://doheelab.github.io/recommender-system/ncf_mlp/</loc>
+    </url>
+    
+    <url>
+        <loc>https://doheelab.github.io/algorithm/binary_tree/</loc>
+    </url>
+    
+    <url>
         <loc>https://doheelab.github.io/pandas/parse_json/</loc>
     </url>
     
@@ -101,6 +117,14 @@
     
     <url>
         <loc>https://doheelab.github.io/page2/</loc>
+    </url>
+    
+    
+    
+    
+    
+    <url>
+        <loc>https://doheelab.github.io/page3/</loc>
     </url>
     
     
