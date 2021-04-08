@@ -1,4 +1,8 @@
-I"D<p><strong>JWT</strong>는 특정 유저에게 <strong>권한 부여</strong>(authorization)를 하기 위한 방법 중 하나입니다. 
+I"G<p>$112$</p>
+
+\[1+1\]
+
+<p><strong>JWT</strong>는 특정 유저에게 <strong>권한 부여</strong>(authorization)를 하기 위한 방법 중 하나입니다. 
 서버는 HTTP 요청을 받았을 때, 요청한 유저가 이미 <strong>인증</strong>(ID와 패스워드가 맞는 지 확인, authentication)을 한 유저인지 (JWT를 통해) 확인 후 알맞은 권한을 부여합니다.</p>
 
 <h2 id="세션session을-통한-권한-부여">세션(session)을 통한 권한 부여</h2>
@@ -87,15 +91,28 @@
 
 <p>JWT는 Header, Payload, Signature로 구성되어 있습니다. 각 파트는 <code class="language-plaintext highlighter-rouge">.(dot)</code>으로 구분됩니다.</p>
 
-<center>
-
-|       파트       |  역할   |
-| :----------------: | :-----: |
-| **Header** | 인코딩 알고리즘 및 토큰 타입(JWT)|
-|  **Payload**  |  `request`에 대한 데이터  <br /> `sub(subject, user id)`: 유저의 id <br /> `iat(issued at), exp or eat(expired at)`: 유효기간 |
-| **Signature**  |  `Header`와 `Payload`의 정보를 `secret key`를 통해 인코딩한 결과  |
-
-</center>
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">파트</th>
+      <th style="text-align: center">역할</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><strong>Header</strong></td>
+      <td style="text-align: center">인코딩 알고리즘 및 토큰 타입(JWT)</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><strong>Payload</strong></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">request</code>에 대한 데이터  <br /> <code class="language-plaintext highlighter-rouge">sub(subject, user id)</code>: 유저의 id <br /> <code class="language-plaintext highlighter-rouge">iat(issued at), exp or eat(expired at)</code>: 유효기간</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><strong>Signature</strong></td>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">Header</code>와 <code class="language-plaintext highlighter-rouge">Payload</code>의 정보를 <code class="language-plaintext highlighter-rouge">secret key</code>를 통해 인코딩한 결과</td>
+    </tr>
+  </tbody>
+</table>
 
 <div align="center">
   <i>JWT의 구성요소</i>
