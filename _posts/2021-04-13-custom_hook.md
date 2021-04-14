@@ -8,7 +8,7 @@ tags: [react, react-hook, web-development, custom-hook, client]
 
 **Custom hook**은 React에서 제공하는 hook을 활용하여 사용자가 원하는 기능을 수행하도록 만든 함수를 의미합니다. 이를 통해 hook을 포함한 반복적인 작업을 다른 component에서 쉽게 사용할 수 있게 해줍니다.
 
-**Custom Hook**의 이름은 반드시 **use**로 시작해야 하는데, 그 이유는 다음과 같습니다.
+**Custom hook**의 이름은 반드시 **use**로 시작해야 하는데, 그 이유는 다음과 같습니다.
 
  - 한눈에 보아도 **Hook 규칙**이 적용되는지를 파악할 수 있습니다.
  - `use`로 시작하면 **Hook 규칙의 위반 여부**를 react가 자동으로 체크합니다.
@@ -19,15 +19,15 @@ tags: [react, react-hook, web-development, custom-hook, client]
 
 이름이 `use`로 시작하는 함수가 지켜야하는 **Hook 규칙**은 다음과 같습니다.
 
-- **최상위**(at the Top Level)에서만 Hook을 호출해야 합니다
+- **최상위**(at the Top Level)에서만 Hook을 호출해야 합니다.
 
-- 오직 **React 함수 내**에서 Hook을 호출해야 합니다
+- 오직 **React 함수 내**에서 Hook을 호출해야 합니다.
 
 <br/>
 
 ## 실습 1. useState
 
-먼저 `custom hook`을 사용해서 `useState`와 같은 기능을 하는 가장 기본적인 hook을 만들어 보겠습니다.
+먼저 `custom hook`을 사용해서 `useState`와 같은 기능을 하는 가장 기본적인 hook을 만들어 보겠습니다. 실습코드는 [링크](https://github.com/doheelab/js-study/tree/master/react-hook)에서 확인하실 수 있습니다.
 
 ```javascript
 import { useState } from "react";
