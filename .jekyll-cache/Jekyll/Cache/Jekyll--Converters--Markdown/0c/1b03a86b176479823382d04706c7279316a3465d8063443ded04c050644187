@@ -1,0 +1,86 @@
+I"<h2 id="custom-hook의-이해">Custom hook의 이해</h2>
+
+<p><strong>Custom hook</strong>은 React에서 제공하는 hook을 활용하여 사용자가 원하는 기능을 수행하도록 만든 함수를 의미합니다. 이를 통해 hook을 포함한 반복적인 작업을 다른 component에서 쉽게 사용할 수 있게 해줍니다.</p>
+
+<p><strong>Custom Hook</strong>의 이름은 반드시 <strong>use</strong>로 시작해야 하는데, 그 이유는 다음과 같습니다.</p>
+
+<ul>
+  <li>한눈에 보아도 <strong>Hook 규칙</strong>이 적용되는지를 파악할 수 있습니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">use</code>로 시작하면 <strong>Hook 규칙의 위반 여부</strong>를 react가 자동으로 체크합니다.</li>
+</ul>
+
+<h2 id="hook의-규칙">Hook의 규칙</h2>
+
+<p>이름이 <code class="language-plaintext highlighter-rouge">use</code>로 시작하는 함수가 지켜야하는 <strong>Hook 규칙</strong>은 다음과 같습니다.</p>
+
+<ul>
+  <li>
+    <p><strong>최상위</strong>(at the Top Level)에서만 Hook을 호출해야 합니다</p>
+  </li>
+  <li>
+    <p>오직 <strong>React 함수 내</strong>에서 Hook을 호출해야 합니다</p>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<h2 id="실습-1-usestate">실습 1. useState</h2>
+
+<p>먼저 <code class="language-plaintext highlighter-rouge">custom hook</code>을 사용해서 <code class="language-plaintext highlighter-rouge">useState</code>와 같은 기능을 하는 가장 기본적인 hook을 만들어 보겠습니다.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">useState</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="c1">// useState와 기능이 같은 custom hook</span>
+<span class="k">export</span> <span class="k">default</span> <span class="kd">function</span> <span class="nx">useBasicHook</span><span class="p">(</span><span class="nx">initialValue</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">value</span><span class="p">,</span> <span class="nx">setValue</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">(</span><span class="nx">initialValue</span><span class="p">);</span>
+  <span class="k">return</span> <span class="p">[</span><span class="nx">value</span><span class="p">,</span> <span class="nx">setValue</span><span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">useBasicHook</code>의 기능은 <code class="language-plaintext highlighter-rouge">useState</code>의 기능과 일치합니다.</p>
+
+<p><br /></p>
+
+<h2 id="실습-2-uselocalstorage">실습 2. useLocalStorage</h2>
+
+<p>다음으로 <strong>Local Storage</strong>에 state를 저장하고, 저장된 값이 있다면  key를 통해 불러오는 custom hook을 생성해보겠습니다.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">useState</span><span class="p">,</span> <span class="nx">useEffect</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react</span><span class="dl">"</span><span class="p">;</span>
+
+<span class="c1">// key에 해당하는 값이 있으면 그 값을, 아니면 initialValue를 리턴</span>
+<span class="kd">function</span> <span class="nx">getSavedValue</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">initialValue</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">rendering</span><span class="dl">"</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="nx">savedValue</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">localStorage</span><span class="p">.</span><span class="nx">getItem</span><span class="p">(</span><span class="nx">key</span><span class="p">));</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">savedValue</span><span class="p">)</span> <span class="k">return</span> <span class="nx">savedValue</span><span class="p">;</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">initialValue</span> <span class="k">instanceof</span> <span class="nb">Function</span><span class="p">)</span> <span class="k">return</span> <span class="nx">initialValue</span><span class="p">();</span>
+  <span class="k">return</span> <span class="nx">initialValue</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="kd">function</span> <span class="nx">useLocalStorage</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">initialValue</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">value</span><span class="p">,</span> <span class="nx">setValue</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">getSavedValue</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">initialValue</span><span class="p">);</span>
+  <span class="p">});</span>
+
+  <span class="c1">// (Tip) 아래와 같이 선언하면 rendering시 매번 useState 실행되므로 함수형으로 써야한다.</span>
+  <span class="c1">// const [value, setValue] = useState(getSavedValue(key, initialValue));</span>
+
+  <span class="c1">// local storage의 key에 value를 저장</span>
+  <span class="nx">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">localStorage</span><span class="p">.</span><span class="nx">setItem</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">value</span><span class="p">));</span>
+  <span class="p">},</span> <span class="p">[</span><span class="nx">key</span><span class="p">,</span> <span class="nx">value</span><span class="p">]);</span>
+
+  <span class="k">return</span> <span class="p">[</span><span class="nx">value</span><span class="p">,</span> <span class="nx">setValue</span><span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><mark> TIP 1.</mark> <code class="language-plaintext highlighter-rouge">useState</code>를 사용할 때, initialValue를 <strong>함수형</strong>으로 입력하면 부모 component(useLocalStorage)가 rerender 하더라도 <code class="language-plaintext highlighter-rouge">useState</code>는 단 한번만 실행이 됩니다.</p>
+
+<p><br /></p>
+
+<h2 id="참고자료">참고자료</h2>
+
+<p>[1] <a href="https://ko.reactjs.org/docs/hooks-custom.html">자신만의 Hook 만들기</a></p>
+
+<p>[2] <a href="https://www.youtube.com/watch?v=6ThXsUwLWvc">Learn Custom Hooks In 10 Minutes</a></p>
+:ET

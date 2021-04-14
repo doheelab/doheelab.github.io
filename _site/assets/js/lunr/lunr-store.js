@@ -70,4 +70,10 @@ var store = [{
         "tags": ["jwt","json-web-token","authentication","authorization","web-development","server","client","security"],
         "url": "/web-development/jwt/",
         "teaser": null
+      },{
+        "title": "[React] 유용한 Custom hook 만들기",
+        "excerpt":"Custom hook은 React에서 제공하는 hook을 활용하여 사용자가 원하는 기능을 수행하도록 만든 함수를 의미합니다. 이를 통해 hook을 포함한 반복적인 작업을 다른 component에서 쉽게 사용할 수 있게 해줍니다. Custom Hook의 이름은 반드시 use로 시작해야 하는데, 그 이유는 다음과 같습니다. 한눈에 보아도 Hook 규칙이 적용되는지를 파악할 수 있습니다. use로 시작하면 Hook 규칙의 위반...","categories": ["web-development"],
+        "tags": ["react","react-hook","web-development","custom-hook","client"],
+        "url": "/web-development/custom_hook/",
+        "teaser": null
       }]
