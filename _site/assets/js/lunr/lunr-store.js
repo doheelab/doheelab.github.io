@@ -72,8 +72,14 @@ var store = [{
         "teaser": null
       },{
         "title": "[React] 유용한 Custom hook 만들기",
-        "excerpt":"Custom hook은 React에서 제공하는 hook을 활용하여 사용자가 원하는 기능을 수행하도록 만든 함수를 의미합니다. 이를 통해 hook을 포함한 반복적인 작업을 다른 component에서 쉽게 사용할 수 있게 해줍니다. Custom Hook의 이름은 반드시 use로 시작해야 하는데, 그 이유는 다음과 같습니다. 한눈에 보아도 Hook 규칙이 적용되는지를 파악할 수 있습니다. use로 시작하면 Hook 규칙의 위반...","categories": ["web-development"],
+        "excerpt":"Custom hook은 React에서 제공하는 hook을 활용하여 사용자가 원하는 기능을 수행하도록 만든 함수를 의미합니다. 이를 통해 hook을 포함한 반복적인 작업을 다른 component에서 쉽게 사용할 수 있게 해줍니다. Custom hook의 이름은 반드시 use로 시작해야 하는데, 그 이유는 다음과 같습니다. 한눈에 보아도 Hook 규칙이 적용되는지를 파악할 수 있습니다. use로 시작하면 Hook 규칙의 위반...","categories": ["web-development"],
         "tags": ["react","react-hook","web-development","custom-hook","client"],
         "url": "/web-development/custom_hook/",
+        "teaser": null
+      },{
+        "title": "[Clean Code] 실무에서 바로 쓰는 Frontend Clean Code",
+        "excerpt":"이 글은 개발자 컨퍼런스 SLASH의 “실무에서 바로 쓰는 Frontend Clean Code” 동영상을 정리한 글입니다. 실무에서 클린 코드의 의의 실무에서 클린 코드가 중요한 이유는, 클린 코드는 유지보수 시간의 단축 (코드 리뷰, 디버깅)에 유리하기 때문입니다. 안일한 코드 추가의 함정 기존 코드에 기능(연결전문가)을 추가할 때, 조심하지 않으면 다음과 그림과 같이 하나의 기능을 하는...","categories": ["clean-code"],
+        "tags": ["react","web-development","clean-code","javascript"],
+        "url": "/clean-code/slash21_clean_code/",
         "teaser": null
       }]
