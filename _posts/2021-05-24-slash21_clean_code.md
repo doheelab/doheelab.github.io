@@ -135,6 +135,17 @@ tags: [react, web-development, clean-code, javascript, front-end]
 
 <br/>
 
+### **3. 추상화**
+
+추상화 수준이 섞여 있다면 코드 파악이 어렵습니다. 그래서 추상화 단계는 비슷하게 정리하는 것이 좋습니다. 다음 예시는 팝업 컴포넌트를 중요한 개념만 남기고 추상화한 예시입니다.
+
+
+<div style="text-align:center"><img src="https://user-images.githubusercontent.com/57972646/119589300-7d3e0180-be0d-11eb-82d2-379b12638364.png" /></div>
+
+
+<div align="center">
+  <i> 중요 개념만 남기고 추상화 </i>
+</div>
 
 
 ## 참고자료 
