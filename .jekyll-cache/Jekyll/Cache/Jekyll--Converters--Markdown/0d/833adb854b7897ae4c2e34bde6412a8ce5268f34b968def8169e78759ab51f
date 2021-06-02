@@ -1,4 +1,4 @@
-I"l<p>이 글은 개발자 컨퍼런스 SLASH의 <a href="https://www.youtube.com/watch?v=edWbHp_k_9Y">“실무에서 바로 쓰는 Frontend Clean Code”</a> 동영상을 정리한 글입니다.</p>
+I"�<p>이 글은 개발자 컨퍼런스 SLASH의 <a href="https://www.youtube.com/watch?v=edWbHp_k_9Y">“실무에서 바로 쓰는 Frontend Clean Code”</a> 동영상을 정리한 글입니다.</p>
 
 <h2 id="실무에서-클린-코드의-의의">실무에서 클린 코드의 의의</h2>
 
@@ -121,6 +121,16 @@
 </div>
 
 <p><br /></p>
+
+<h3 id="3-추상화"><strong>3. 추상화</strong></h3>
+
+<p>추상화 수준이 섞여 있다면 코드 파악이 어렵습니다. 그래서 추상화 단계는 비슷하게 정리하는 것이 좋습니다. 다음 예시는 팝업 컴포넌트를 중요한 개념만 남기고 추상화한 예시입니다.</p>
+
+<div style="text-align:center"><img src="https://user-images.githubusercontent.com/57972646/119589300-7d3e0180-be0d-11eb-82d2-379b12638364.png" /></div>
+
+<div align="center">
+  <i> 중요 개념만 남기고 추상화 </i>
+</div>
 
 <h2 id="참고자료">참고자료</h2>
 

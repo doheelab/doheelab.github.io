@@ -52,7 +52,7 @@ y_{ui} = p_u \cdot p_i
 
 <h2 id="generalized-matrix-factorization">Generalized Matrix Factorization</h2>
 
-<p><strong>GMF</strong>는 이러한 상호작용을 일반화하여 모델의 성능을 향상시키기 위한 모델입니다. 이를 위해 위식 에서 <strong>1. 내적($\cdot$)을 일반화하고</strong>, <strong>2. 활성함수(activation function)를 추가합니다.</strong></p>
+<p><strong>GMF</strong>는 이러한 상호작용을 일반화하여 모델의 성능을 향상시키기 위한 모델입니다. 이를 위해 위 식에서 <strong>1. 내적($\cdot$)을 일반화하고</strong>, <strong>2. 활성함수(activation function)를 추가합니다.</strong></p>
 
 <blockquote>
   <p><em>Generalized Matrix Factorization (GMF)</em>

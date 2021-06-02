@@ -79,7 +79,13 @@ var store = [{
       },{
         "title": "[Clean Code] 실무에서 바로 쓰는 Frontend Clean Code",
         "excerpt":"이 글은 개발자 컨퍼런스 SLASH의 “실무에서 바로 쓰는 Frontend Clean Code” 동영상을 정리한 글입니다. 실무에서 클린 코드의 의의 실무에서 클린 코드가 중요한 이유는, 클린 코드는 유지보수 시간의 단축 (코드 리뷰, 디버깅)에 유리하기 때문입니다. 안일한 코드 추가의 함정 기존 코드에 기능(연결전문가)을 추가할 때, 조심하지 않으면 다음과 그림과 같이 하나의 기능을 하는...","categories": ["clean-code"],
-        "tags": ["react","web-development","clean-code","javascript"],
+        "tags": ["react","web-development","clean-code","javascript","front-end"],
         "url": "/clean-code/slash21_clean_code/",
+        "teaser": null
+      },{
+        "title": "[React] 비동기적 setState",
+        "excerpt":"setState는 함수형 컴포넌트 내에서 상태를 관리하게 위해 사용하는 useState를 통해 반환되는 함수입니다. 기본적으로 setState의 인자값에 변경하고자 하는 상태를 전달하여, 상태를 변경할 수 있습니다. 이 글에서는 setState 함수의 특징과 올바르게 사용하지 않았을 때 발생할 수 있는 오류에 대해서 알아보겠습니다. setState의 특징 setState 함수는 다음 4가지 특징을 가지고 있습니다. 비동기적으로 동작한다. 연속적으로...","categories": ["react"],
+        "tags": ["react","react-hook","web-development","javascript","front-end"],
+        "url": "/react/setState/",
         "teaser": null
       }]
