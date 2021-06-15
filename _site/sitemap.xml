@@ -2,6 +2,10 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     
     <url>
+        <loc>https://doheelab.github.io/network/RESTfulAPI/</loc>
+    </url>
+    
+    <url>
         <loc>https://doheelab.github.io/database/db-normalization/</loc>
     </url>
     

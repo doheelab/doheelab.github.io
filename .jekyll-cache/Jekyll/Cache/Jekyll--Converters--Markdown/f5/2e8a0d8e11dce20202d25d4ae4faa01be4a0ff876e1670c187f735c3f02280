@@ -1,0 +1,256 @@
+I"�'<p>이번 글에서는 <strong>RESTful API</strong>의 개념과 활용 방법에 대해 알아보겠습니다.</p>
+
+<h2 id="1-http-hypertext-transfer-protocol-하이퍼텍스트전송규약">1. HTTP (HyperText Transfer Protocol, 하이퍼텍스트전송규약)</h2>
+
+<p>HTTP는 클라이언트와 서버 사이에 이루어지는 요청/응답(request/response) 프로토콜입니다.</p>
+
+<p>HTTP를 통해 전달되는 자료는 http:로 시작하는 URL(인터넷 주소)로 조회할 수 있습니다.</p>
+
+<p><br /></p>
+
+<h2 id="2-rest-representational-state-transfer">2. REST (Representational State Transfer)</h2>
+
+<p>월드 와이드 웹과 같은 분산 하이퍼미디어 시스템을 위한 소프트웨어 아키텍처의 한 형식으로서, 네트워크 아키텍처 원리의 모음입니다.</p>
+
+<p>여기서 <strong>‘네트워크 아키텍처 원리’</strong>란 자원을 정의하고 자원에 대한 주소를 지정하는 방법 전반을 일컫습니다.</p>
+
+<p>그리고 REST 제한을 따르는 웹 서비스를 <strong>RESTful</strong> 하다고 말합니다.</p>
+
+<p><br /></p>
+
+<h2 id="3-rest-아키텍처에-적용되는-6가지-제한-조건">3. REST 아키텍처에 적용되는 6가지 제한 조건</h2>
+
+<ul>
+  <li>
+    <p><strong>인터페이스 일관성</strong> : 일관적인 인터페이스로 분리되어야 한다.</p>
+  </li>
+  <li>
+    <p><strong>무상태(Stateless)</strong>: 각 요청 간 클라이언트의 콘텍스트가 서버에 저장되어서는 안 된다.</p>
+  </li>
+  <li>
+    <p><strong>캐시 처리 가능(Cacheable)</strong>: 클라이언트는 응답을 캐싱할 수 있어야 한다. HTTP 프로토콜 표준에서 사용하는 Last-Modified태그나 E-Tag를 이용하면 캐싱 구현이 가능합니다.</p>
+  </li>
+  <li>
+    <p><strong>계층화(Layered System)</strong>: 클라이언트는 보통 대상 서버에 직접 연결되었는지, 또는 중간 서버를 통해 연결되었는지를 알 수 없다. 중간 서버는 로드 밸런싱 기능이나 공유 캐시 기능을 제공함으로써 시스템 규모 확장성을 향상시키는 데 유용하다.</p>
+  </li>
+  <li>
+    <p><strong>클라이언트/서버 구조</strong> : 아키텍처를 단순화시키고 작은 단위로 분리(decouple)함으로써 클라이언트-서버의 각 파트가 독립적으로 개선될 수 있도록 해준다.</p>
+  </li>
+  <li>
+    <p><strong>Code on demand (optional)</strong> - 자바 애플릿이나 자바스크립트의 제공을 통해 서버가 클라이언트가 실행시킬 수 있는 로직을 전송하여 기능을 확장시킬 수 있다.</p>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<h2 id="4-api의-의미">4. API의 의미</h2>
+
+<p>소프트웨어끼리 지정된 형식으로 요청, 명령을 받을 수 있는 형식을 말합니다.</p>
+
+<p><br /></p>
+
+<h2 id="5-restful-api의-구성">5. RESTful API의 구성</h2>
+
+<ul>
+  <li>자원(RESOURCE) - URI</li>
+  <li>행위(Verb) - <strong>HTTP METHOD</strong></li>
+  <li>표현(Representations)</li>
+</ul>
+
+<p>자원에 대한 행위는 <strong>HTTP Method</strong>(<code class="language-plaintext highlighter-rouge">GET</code>, <code class="language-plaintext highlighter-rouge">POST</code>, <code class="language-plaintext highlighter-rouge">PUT</code>, <code class="language-plaintext highlighter-rouge">DELETE</code> 등)로 표현합니다.</p>
+
+<p>Method만으로 어떤 기능을 하는 API인지 구분할 수 있게 작성합니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th>내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>POST</strong></td>
+      <td>POST를 통해 해당 URI를 요청하면 리소스를 생성합니다.</td>
+    </tr>
+    <tr>
+      <td><strong>GET</strong></td>
+      <td>GET를 통해 해당 리소스를 조회합니다.</td>
+    </tr>
+    <tr>
+      <td><strong>PUT</strong></td>
+      <td>PUT를 통해 해당 리소스를 수정합니다.</td>
+    </tr>
+    <tr>
+      <td><strong>DELETE</strong></td>
+      <td>DELETE를 통해 리소스를 삭제합니다.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<p><strong>PUT, PATCH</strong> Method는 다음과 같은 차이가 있습니다.</p>
+
+<p><strong>PUT</strong>: 정보를 통째로 갈아끼울 때</p>
+
+<p><strong>PATCH</strong>: 정보를 일부만 수정할 때</p>
+
+<p><br /></p>
+
+<h2 id="6-uri-설계-시-주의할-점">6. URI 설계 시 주의할 점</h2>
+
+<ul>
+  <li>슬래시 구분자(/)는 계층 관계를 나타내는 데 사용합니다.</li>
+  <li>URI 마지막 문자로 슬래시(/)를 포함하지 않습니다.</li>
+  <li>하이픈(-)은 URI 가독성을 높이는데 사용하고 밑줄(_)은 URI에 사용하지 않습니다.</li>
+  <li>URI 경로에는 소문자만을 사용합니다.</li>
+  <li>파일 확장자는 URI에 포함시키지 않습니다.</li>
+</ul>
+
+<p><br /></p>
+
+<h2 id="7-리소스-간의-관계를-표현하는-방법">7. 리소스 간의 관계를 표현하는 방법</h2>
+
+<p>REST 리소스 간에는 연관 관계가 있을 수 있고, 이런 경우 다음과 같은 표현방법으로 사용합니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    /리소스명/리소스 ID/관계가 있는 다른 리소스명
+
+    ex)    GET : /users/{userid}/devices (일반적으로 소유 ‘has’의 관계를 표현할 때)
+</code></pre></div></div>
+
+<p>만약에 관계명이 복잡하다면 이를 서브 리소스에 명시적으로 표현하는 방법이 있습니다.</p>
+
+<p>예를 들어 사용자가 ‘좋아하는’ 디바이스 목록을 표현해야 할 경우 다음과 같은 형태로 사용될 수 있습니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    GET : /users/{userid}/likes/devices (관계명이 애매하거나 구체적 표현이 필요할 때)
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="8-자원을-표현하는-collection과-document">8. 자원을 표현하는 Collection과 Document</h2>
+
+<p><strong>Collection</strong>과 <strong>Document</strong>에 대해 이해하면 URI 설계가 한 층 더 쉬워집니다.</p>
+
+<p><strong>Document</strong>는 한 문서 혹은 한 객체를 의미하고, <strong>Collection</strong>은 문서들의 집합, 객체들의 집합을 의미합니다. 
+컬렉션과 도큐먼트는 모두 리소스라고 표현할 수 있으며, URI에 표현됩니다. 예를 살펴보도록 하겠습니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    http:// restapi.example.com/sports/soccer
+</code></pre></div></div>
+
+<p>위의 URI는 <code class="language-plaintext highlighter-rouge">sports</code>라는 Collection과 <code class="language-plaintext highlighter-rouge">soccer</code>라는 Document로 표현되고 있습니다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    http:// restapi.example.com/sports/soccer/players/13
+</code></pre></div></div>
+
+<p>위의 URI는 <code class="language-plaintext highlighter-rouge">sports</code>, <code class="language-plaintext highlighter-rouge">players</code> Collection과 <code class="language-plaintext highlighter-rouge">soccer</code>, <code class="language-plaintext highlighter-rouge">13</code>(13번인 선수)를 의미하는 Document로 URI가 이루어지게 됩니다. 
+여기서 중요한 점은 <strong>Collection은 복수, Document는 단수</strong> 사용하고 있다는 점입니다.</p>
+
+<p><br /></p>
+
+<h2 id="9-http-status-code">9. HTTP Status Code</h2>
+
+<p>RESTful API에서는 리소스에 대한 응답을 잘 정의하여야 합니다.
+대표적인 상태코드는 다음과 같습니다.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>상태코드</th>
+      <th>내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>200</td>
+      <td>클라이언트의 요청을 정상적으로 수행함</td>
+    </tr>
+    <tr>
+      <td>201</td>
+      <td>클라이언트가 어떠한 리소스 생성을 요청, 해당 리소스가 성공적으로 생성됨(POST를 통한 리소스 생성)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>상태코드</th>
+      <th>내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>400</td>
+      <td>Bad Request, 잘못된 요청</td>
+    </tr>
+    <tr>
+      <td>401</td>
+      <td>Unauthorized, 권한 없이 요청. Authorization 헤더가 잘못된 경우</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>(로그인 하지 않은 유저가 로그인 했을 때, 요청 가능한 리소스를 요청했을 때)</td>
+    </tr>
+    <tr>
+      <td>403</td>
+      <td>Forbidden, 사용자의 권한으로 리소스를 사용할 수 없음</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>(403 보다는 400이나 404를 사용할 것을 권고. 403 자체가 리소스가 존재한다는 뜻이기 때문에)</td>
+    </tr>
+    <tr>
+      <td>404</td>
+      <td>Not Found (실패, 데이터가 있어야 하나 없음)</td>
+    </tr>
+    <tr>
+      <td>405</td>
+      <td>Method Not Allowed, 허용되지 않은 메서드</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>상태코드</th>
+      <th>내용</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>301</td>
+      <td>클라이언트가 요청한 리소스에 대한 URI가 변경 되었을 때 사용하는 응답 코드</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>(응답 시 Location header에 변경된 URI를 적어 줘야 합니다)</td>
+    </tr>
+    <tr>
+      <td>500</td>
+      <td>서버에 문제가 있을 경우</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<h2 id="참고자료">참고자료</h2>
+
+<ol>
+  <li>
+    <p><a href="https://meetup.toast.com/posts/92">REST API 제대로 알고 사용하기</a></p>
+  </li>
+  <li>
+    <p><a href="https://ko.wikipedia.org/wiki/HTTP">(위키백과) HTTP</a></p>
+  </li>
+  <li>
+    <p><a href="https://ko.wikipedia.org/wiki/REST">(위키백과) REST</a></p>
+  </li>
+</ol>
+:ET

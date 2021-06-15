@@ -94,4 +94,10 @@ var store = [{
         "tags": ["database","normalization"],
         "url": "/database/db-normalization/",
         "teaser": null
+      },{
+        "title": "[네트워크] RESTful API의 개념과 활용",
+        "excerpt":"이번 글에서는 RESTful API의 개념과 활용 방법에 대해 알아보겠습니다. 1. HTTP (HyperText Transfer Protocol, 하이퍼텍스트전송규약) HTTP는 클라이언트와 서버 사이에 이루어지는 요청/응답(request/response) 프로토콜입니다. HTTP를 통해 전달되는 자료는 http:로 시작하는 URL(인터넷 주소)로 조회할 수 있습니다. 2. REST (Representational State Transfer) 월드 와이드 웹과 같은 분산 하이퍼미디어 시스템을 위한 소프트웨어 아키텍처의 한 형식으로서,...","categories": ["network"],
+        "tags": ["network","rest"],
+        "url": "/network/RESTfulAPI/",
+        "teaser": null
       }]
