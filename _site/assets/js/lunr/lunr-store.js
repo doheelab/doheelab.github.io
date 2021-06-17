@@ -100,4 +100,10 @@ var store = [{
         "tags": ["network","rest"],
         "url": "/network/RESTfulAPI/",
         "teaser": null
+      },{
+        "title": "[CSS] styled-components 활용하기",
+        "excerpt":"styled-components는 CSS를 React component나 HTML 태그에 적용하기 간편하게 적용하기 위한 기술입니다. 기본적인 사용 예시는 다음과 같습니다. import styled from 'styled-components' // Create a Title component that'll render an &lt;h1&gt; tag with some styles const Title = styled.h1` font-size: 1.5em; text-align: center; color: palevioletred; `; props에 따라 스타일 변경하기 styled-components에 함수를...","categories": ["css"],
+        "tags": ["css","react"],
+        "url": "/css/styled-components/",
+        "teaser": null
       }]
